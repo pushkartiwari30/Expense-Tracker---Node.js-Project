@@ -48,7 +48,7 @@ app.post('/user/login', async (req, res) => {
         }
         else {
             console.log('User Not Found');
-            res.status(400).json({ message: 'User Not Found' });
+            res.status(40).json({ message: 'User Not Found' });
         }
     }
     catch (err) {
@@ -58,7 +58,7 @@ app.post('/user/login', async (req, res) => {
         })
     }
 });
-//when email doesnot match 
+
 
 
 
