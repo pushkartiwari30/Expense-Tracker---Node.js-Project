@@ -43,12 +43,12 @@ app.post('/user/login', async (req, res) => {
             }
             else {
                 console.log('Credentials are not valid');
-                res.status(400).json({ message: 'Password Does Not Match' });
+                res.status(401).json({ message: 'Password Does Not Match' });
             }
         }
         else {
             console.log('User Not Found');
-            res.status(40).json({ message: 'User Not Found' });
+            res.status(404).json({ message: 'User Not Found' });
         }
     }
     catch (err) {
