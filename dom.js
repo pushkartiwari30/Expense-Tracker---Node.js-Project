@@ -20,7 +20,7 @@ signupForm.addEventListener('submit', (event) => {
 
         })
         .catch((error) => {
-            console.log(error);
+            //console.log(error);
             //addinf this error to front end 
             const errorMessage = error.message;
             console.log(errorMessage);

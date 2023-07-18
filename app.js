@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 
 const sequelize = require('./util/database');
 const User = require('./models/user');
@@ -15,8 +16,13 @@ app.post('/user/signup', async (req, res) => {
         const name = req.body.name;
         const email = req.body.email;
         const password = req.body.password;
-        const data = await User.create({ name: name, email: email, password: password })
-        res.status(201).json({ data: data });
+
+        //ecrypting algo
+        const saltRounds = 10; // this decide the level of complexity of th hashcode to be generated. 
+        bcrypt.hash(password, saltRounds, async (err, hash) => {
+            const data = await User.create({ name: name, email: email, password: hash })
+            res.status(201).json({ data: data });
+        })
     }
     catch (err) {
         //const error = err.parent.sqlMessage;
@@ -37,14 +43,16 @@ app.post('/user/login', async (req, res) => {
             }
         });
         if (user) {
-            if (user.dataValues.password == password) {
-                console.log('Credentials are valid');
-                res.status(201).json({ message: 'Logged in Sucessfully' });
-            }
-            else {
-                console.log('Credentials are not valid');
-                res.status(401).json({ message: 'Password Does Not Match' });
-            }
+            bcrypt.compare(password, user.dataValues.password, (err, result) => {
+                if (result) {
+                    console.log('Credentials are valid');
+                    res.status(201).json({ message: 'Logged in Sucessfully' });
+                }
+                else {
+                    console.log('Credentials are not valid');
+                    res.status(401).json({ message: 'Password Does Not Match' });
+                }
+            })
         }
         else {
             console.log('User Not Found');
