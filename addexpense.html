@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <link rel="stylesheet" type="text/css" href="style\add-expense.css">
+</head>
+<body>
+    <form action="expense/addexpense" method="POST" id="addExpenseForm">
+        <label for="amount">Enter Expense Amount: </label>
+        <input type="number" id="amount" name="amount" required>
+        <label for="desc">Enter Description: </label>
+        <input type="text" id="desc" name="desc">
+        <label for="cat">Choose A Category:  </label>
+        <select id="cat" name="cat" required>
+            <option value="Miscellaneous">Miscellaneous</option>
+            <option value="Travel">Travel</option>
+            <option value="Grocery">Grocery</option>
+            <option value="Rent">Rent</option>
+            <option value="Entertainment">Entertainment</option>
+        </select>
+        <input type="submit" value="Add Expense">
+    </form>
+    <table id="expenseTable">
+        <thead>
+            <tr>
+                <th>Expense Amount</th>
+                <th>Description</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<script src="dom-addexpense.js"></script>
+</html>

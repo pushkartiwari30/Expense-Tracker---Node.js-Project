@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 
 const sequelize = require('./util/database');
 const User = require('./models/user');
+const Expense = require('./models/expenses')
 
 
 app.use(cors());
@@ -66,8 +67,45 @@ app.post('/user/login', async (req, res) => {
         })
     }
 });
+app.post('/expense/addexpense', async (req, res) => {
+    try {
+        console.log(req.body);
+        const amount = req.body.amount;
+        const desc = req.body.desc;
+        const cat = req.body.cat;
+        const expense = await Expense.create({ amount: amount, description: desc, category: cat })
+        res.status(201).json({ data: expense });
 
+    }
+    catch (err) {
+        console.log(err);
+    }
+})
+app.post('/expense/deleteexpense', async (req, res) => {
+    try {
+        console.log(req.body.id);
+        await Expense.destroy({
+            where: { id: req.body.id },
+        });
+        console.log("expense deleted");
+        res.sendStatus(204);
+    }
+    catch (err) {
+        console.log(err);
+    }
+})
 
+app.get('/expense/getexpenses', async(req, res) => {
+    try {
+        const allExpense = await Expense.findAll();
+        console.log(allExpense);
+        res.status(200).json({allExpense : allExpense});
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
 
 
 sequelize.sync()
