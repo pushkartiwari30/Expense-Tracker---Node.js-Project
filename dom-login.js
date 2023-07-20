@@ -15,7 +15,12 @@ loginForm.addEventListener('submit', (event) => {
         .then((res) => {
             console.log(res.data.message);
             alert(res.data.message)
-            // form reset 
+            // Redircting to Add Expense Page
+            if(res.data.message =='Logged in Sucessfully'){
+                window.location.href = 'file:///C:/PUSHKAR%20EVERYTHING/IT/Languages/Sharpener%20Tasks/Backend/Expense%20Tracker%20-%20Node.js%20Project/addexpense.html';
+            } 
+            
+
 
         })
         .catch((error) => {

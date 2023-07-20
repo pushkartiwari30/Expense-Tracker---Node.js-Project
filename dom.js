@@ -16,7 +16,8 @@ signupForm.addEventListener('submit', (event) => {
     axios.post("http://localhost:3000/user/signup", userObj)
         .then((res) => {
             console.log(res);
-            // form reset 
+            // Redircting to Login Page
+            window.location.href = 'file:///C:/PUSHKAR%20EVERYTHING/IT/Languages/Sharpener%20Tasks/Backend/Expense%20Tracker%20-%20Node.js%20Project/login.html';
 
         })
         .catch((error) => {
