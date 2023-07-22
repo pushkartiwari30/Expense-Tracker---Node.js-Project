@@ -17,7 +17,8 @@ signupForm.addEventListener('submit', (event) => {
         .then((res) => {
             console.log(res);
             // Redircting to Login Page
-            window.location.href = 'file:///C:/PUSHKAR%20EVERYTHING/IT/Languages/Sharpener%20Tasks/Backend/Expense%20Tracker%20-%20Node.js%20Project/login.html';
+            signupForm.reset();
+            window.location.href = 'login.html';
 
         })
         .catch((error) => {
@@ -27,5 +28,4 @@ signupForm.addEventListener('submit', (event) => {
             console.log(errorMessage);
             errorElement.textContent = errorMessage;
         })
-
 })

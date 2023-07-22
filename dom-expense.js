@@ -8,7 +8,8 @@ const newRow = document.createElement('tr');
 
 
 // making a get request to the backend 
-axios.get("http://localhost:3000/expense/getexpenses")
+const token  = localStorage.getItem('token');
+axios.get("http://localhost:3000/expense/getexpenses", {headers: {"Authorization": token}})
     .then((res) => {
         //console.log(res.data.allExpense);
         const expense = res.data.allExpense;
@@ -57,10 +58,9 @@ addExpenseForm.addEventListener('submit', (event) => {
         cat: cat.value
     }
     console.log(expObj);
-    axios.post("http://localhost:3000/expense/addexpense", expObj)
+    axios.post("http://localhost:3000/expense/addexpense", expObj, {headers: {"Authorization": token}})
         .then((res) => {
             console.log(res.data.data.id);
-
             // Create new table row
             const newRow = document.createElement('tr');
             // Create table data cells

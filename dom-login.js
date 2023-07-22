@@ -14,10 +14,15 @@ loginForm.addEventListener('submit', (event) => {
     axios.post("http://localhost:3000/user/login", userLoginObj)
         .then((res) => {
             console.log(res.data.message);
-            alert(res.data.message)
+            console.log(res.data.token);
+            localStorage.setItem('token', res.data.token )
+            alert(res.data.message);
+
+            loginForm.reset();
+            
             // Redircting to Add Expense Page
             if(res.data.message =='Logged in Sucessfully'){
-                window.location.href = 'file:///C:/PUSHKAR%20EVERYTHING/IT/Languages/Sharpener%20Tasks/Backend/Expense%20Tracker%20-%20Node.js%20Project/addexpense.html';
+                window.location.href = 'expense.html';
             } 
             
 

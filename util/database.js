@@ -5,5 +5,4 @@ const sequelize = new Sequelize('expense', 'root', 'mysql@3001', {
     host: 'localhost'
 });
 
-
 module.exports = sequelize;
