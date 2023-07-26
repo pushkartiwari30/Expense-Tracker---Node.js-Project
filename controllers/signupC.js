@@ -10,7 +10,7 @@ exports.signUpUser = async (req, res) => {
         //ecrypting algo
         const saltRounds = 10; // this decide the level of complexity of th hashcode to be generated. 
         bcrypt.hash(password, saltRounds, async (err, hash) => {
-            const data = await User.create({ name: name, email: email, password: hash })
+            const data = await User.create({ name: name, email: email, password: hash, ispremiumuser: false })
             console.log("sucess");
             res.status(201).json({ data: data });
         });

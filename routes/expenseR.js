@@ -8,4 +8,4 @@ router.post('/addexpense', userAuthenication.authenticate, expenseController.add
 router.post('/deleteexpense', expenseController.deleteExpense);
 router.get('/getexpenses', userAuthenication.authenticate, expenseController.getExpenses); // here we added the authentication middle ware. 
 
-module.exports = router;
+module.exports = router;                                                                                                
