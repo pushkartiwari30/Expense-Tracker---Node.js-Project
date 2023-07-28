@@ -1,9 +1,103 @@
-/* Previous Styling */
+.data-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 30px;
+    font-size: 13px;
+}
+
+/* Styling for data items */
+.data {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.total-expense {
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    margin-right: 20px; /* Add some space between headings and numbers */
+    font-size: 23px;
+}
+.total-income {
+    color: #4CAF50;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    margin-right: 20px; /* Add some space between headings and numbers */
+    font-size: 23px;
+    
+}
+.balance {
+    color: #008CBA;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    margin-right: 20px; /* Add some space between headings and numbers */
+    font-size: 23px;
+}
+
+/* Previous styling for the table */
+table.leaderboard-table {
+    width: 100%;
+    background-color: rgb(227, 255, 218);
+    border-collapse: collapse;
+    border: 50px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ffffff;
+    color: black;
+}
+
+.leaderboard-table th {
+    background-color: #89da8c;
+    
+}
+
+/* Additional styling for the leaderboard container and header */
+.leaderboard-container {
+    margin-top: 20px;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: #fff;
+    width: 50%;
+    padding: 5px;
+    text-align: center;
+}
+.leaderboard-container-parent{
+    display: flex;
+    justify-content: center;
+}
+
+
+
+.leaderboard-container h2 {
+    text-align: center;
+    /* margin-bottom: 10px; */
+}
+
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f1f1f1;
     margin: 0;
     padding: 20px;
+    justify-content: center; /* Center items horizontally */
+    
 }
 
 form {
@@ -13,6 +107,34 @@ form {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
 }
+.form-container {
+    display: flex; /* Use Flexbox to align divs side by side */
+  }
+  
+  .form-container1,
+  .form-container2 {
+    flex: 1; /* Make both divs take equal space in the flex container */
+    padding: 10px; /* Add some padding for spacing */
+  }
+
+.table-container{
+    display: flex;
+}
+  .table1{
+    flex: 1; 
+    padding: 10px;
+  }
+   table2{
+    flex: 2; 
+    padding: 20px;
+  }
+  #incomeTable{
+    padding: 5px;
+    border: 10px;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
 
 label {
     display: block;
@@ -31,7 +153,15 @@ select {
     margin-bottom: 10px;
 }
 
-input[type="submit"] {
+input[value="Add Expense"] {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+input[value="Add Income"] {
     background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
@@ -57,8 +187,9 @@ th {
     background-color: #f2f2f2;
 }
 
-.delete-button {
-    background-color: red;
+.delete-button,
+.delete-button1{
+    background-color: #008CBA;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -96,7 +227,7 @@ h1 {
 
 /* Styling for Sign Up and Log In buttons */
 .signup-button,
-.login-button {
+.logout-button {
     background-color: #008CBA;
     color: white;
     padding: 10px 20px;
@@ -118,4 +249,32 @@ h1 {
 /* Add space between form and buttons */
 .form-container {
     padding-bottom: 20px; /* Adjust this value to control the space */
+}
+
+/* CSS styles for the premium div */
+#premium-user {
+    background: linear-gradient(135deg, #58cf09, #008CBA);
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.6);
+  }
+  
+#leaderboardbutton{
+    background: #008CBA;
+    padding: 10px;
+    color: white;
+    border-radius: 10px;
+    border-color: rgb(0, 0, 0);
+    border-style:double;
+    text-align: center;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#leaderboardbutton:hover {
+    background-color: #58cf09;
 }

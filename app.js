@@ -7,13 +7,16 @@ require('dotenv').config();
 const sequelize = require('./util/database');
 const User = require('./models/user');
 const Expense = require('./models/expenses');
+const Income = require('./models/incomes');
 const Order = require('./models/orders');
 
 //Routers File Imports
 const signupRoutes = require('./routes/signupR');
 const loginRoutes = require('./routes/loginR');
 const expenseRoutes = require('./routes/expenseR');
+const incomeRoutes = require('./routes/incomeR');
 const purchaseRoutes = require('./routes/purchaseR');
+const premiumRoutes = require('./routes/premiumR');
 
 app.use(cors());
 app.use(bodyParser.json({ extended: false }));
@@ -21,11 +24,16 @@ app.use(bodyParser.json({ extended: false }));
 app.use(signupRoutes);
 app.use(loginRoutes);
 app.use('/expense',expenseRoutes);
+app.use('/income',incomeRoutes);
 app.use('/purchase',purchaseRoutes);
+app.use('/premium', premiumRoutes);
 
 //tables relationship
 User.hasMany(Expense);  // one to many
 Expense.belongsTo(User) //one to one 
+
+User.hasMany(Income);  // one to many
+Income.belongsTo(User) //one to one 
 
 User.hasMany(Order);
 Order.belongsTo(User);
