@@ -9,7 +9,7 @@ const Income = sequelize.define('income',{
         allowNull: false,
         primaryKey: true
     },
-    amount: Sequelize.DOUBLE,
+    amountInc: Sequelize.DOUBLE,
     description: Sequelize.STRING,
     category: Sequelize.STRING
 

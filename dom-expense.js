@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         // chekcing if the loggedin user is a premiusm user or not. if he is then : 
         // remove the premium button. 
         if (res.data.isPremiumUser) {
-            premiumButton.remove(); //removing premium butoon
+            premiumButton.remove(); //removing buy premium butoon
             //Adding 'You are a premium user'. 
             const parentDiv = document.querySelector('.left-side');
             const premiumDiv = document.createElement('div');
@@ -47,20 +47,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
             // Adding Leaderboard button 
             const leaderboardButton = document.createElement('button');
-            leaderboardButton.textContent = "Click Here to See Saving's Leaderboard";
+            leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
             leaderboardButton.id = "leaderboardbutton";
             parentDiv.appendChild(leaderboardButton);
 
             leaderboardButton.addEventListener('click', ()=>{
-                if(leaderboardButton.textContent === "Click Here to See Saving's Leaderboard"){
+                if(leaderboardButton.textContent === "Click Here to See Expense Leaderboard"){
                     
                     console.log("clcked 1");
-                    leaderboardButton.textContent = "Click Here to Hide Saving's Leaderboard";
+                    leaderboardButton.textContent = "Click Here to Hide Expense Leaderboard";
                     showLeaderboard();
                 }
-                else if(leaderboardButton.textContent === "Click Here to Hide Saving's Leaderboard"){
+                else if(leaderboardButton.textContent === "Click Here to Hide Expense Leaderboard"){
                     console.log("clcked 2");
-                    leaderboardButton.textContent = "Click Here to See Saving's Leaderboard";
+                    leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
                     hideLeaderboard();
                 }
             })
@@ -69,11 +69,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
         //console.log(res.data.allExpense);
         const expense = res.data.allExpense;
         expense.forEach(obj => {
+            console.log(obj)
             // Create new table row
             const newRow = document.createElement('tr');
 
-            expenseSumtotal=expenseSumtotal+obj.amount;
-            const expenseDetail = [obj.amount, obj.description, obj.category];
+            expenseSumtotal=expenseSumtotal+obj.amountExp;
+            const expenseDetail = [obj.amountExp, obj.description, obj.category];
             expenseDetail.forEach(function (value) {
                 const newCell = document.createElement('td');
                 newCell.textContent = value;
@@ -115,8 +116,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
         income.forEach(obj => {
             // Create new table row
             const newRow1 = document.createElement('tr');
-            incomeSumTotal=incomeSumTotal+obj.amount; // to dsply the sum of income on UI
-            const incomeDetail = [obj.amount, obj.description, obj.category];
+            incomeSumTotal=incomeSumTotal+obj.amountInc; // to dsply the sum of income on UI
+            const incomeDetail = [obj.amountInc, obj.description, obj.category];
             incomeDetail.forEach(function (value) {
                 const newCell1 = document.createElement('td');
                 newCell1.textContent = value;
@@ -154,6 +155,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 addExpenseForm.addEventListener('submit', (event) => {
     event.preventDefault();
+    hideLeaderboard(); //closing leaderboard
     const expObj = {
         amount: amount.value,
         desc: desc.value,
@@ -209,6 +211,7 @@ addExpenseForm.addEventListener('submit', (event) => {
 })
 
 const deleteFn = function (newRow) {
+    hideLeaderboard(); //closing leaderboard
     console.log(newRow.id);
     obj = {
         id: newRow.id
@@ -225,6 +228,7 @@ const deleteFn = function (newRow) {
 
 addIncomeForm.addEventListener('submit', (event) => {
     event.preventDefault();
+    hideLeaderboard(); //closing leaderboard
     const expObj = {
         amount: amount1.value,
         desc: desc1.value,
@@ -282,6 +286,7 @@ addIncomeForm.addEventListener('submit', (event) => {
 
 const deleteFn1 = function (newRow1) {
     console.log(newRow1.id);
+    hideLeaderboard(); //closing leaderboard
     obj = {
         id: newRow1.id
     }
@@ -329,20 +334,20 @@ premiumButton.addEventListener('click', async function (e) {
 
             // Adding Leaderboard button 
             const leaderboardButton = document.createElement('button');
-            leaderboardButton.textContent = "Click Here to See Saving's Leaderboard";
+            leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
             leaderboardButton.id = "leaderboardbutton";
             parentDiv.appendChild(leaderboardButton);
 
             leaderboardButton.addEventListener('click', ()=>{
-                if(leaderboardButton.textContent === "Click Here to See Saving's Leaderboard"){
+                if(leaderboardButton.textContent === "Click Here to See Expense Leaderboard"){
                     
                     console.log("clcked 1");
-                    leaderboardButton.textContent = "Click Here to Hide Saving's Leaderboard";
+                    leaderboardButton.textContent = "Click Here to Hide Expense Leaderboard";
                     showLeaderboard();
                 }
-                else if(leaderboardButton.textContent === "Click Here to Hide Saving's Leaderboard"){
+                else if(leaderboardButton.textContent === "Click Here to Hide Expense Leaderboard"){
                     console.log("clcked 2");
-                    leaderboardButton.textContent = "Click Here to See Saving's Leaderboard";
+                    leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
                     hideLeaderboard();
                 }
             })
@@ -386,13 +391,18 @@ const showLeaderboard = async() =>{
                 rankCell.textContent = r;
                 r++;
                 nameCell.textContent = user.name;
-                expenseCell.textContent = user.total_cost;
-
+                if(user.total_expense !== null){
+                    expenseCell.textContent = user.total_expense;
+                }
+                else{
+                    expenseCell.textContent = "Expense or Income or Both Not Added"
+                }
+                
                 row.appendChild(rankCell);
                 row.appendChild(nameCell);
                 row.appendChild(expenseCell);
-
                 tableBody.appendChild(row);
+                console.log(user.total_expense);
             })                                                                                  
         })
     return;
@@ -400,10 +410,16 @@ const showLeaderboard = async() =>{
 
 const hideLeaderboard = () =>{
     console.log("Hide Lead button Clicked");
-    leaderboardContainer.style.display = 'none';
-    // Remove all rows from the table body
+    leaderboardContainer.style.display = 'none'; // removing leader borad from UI
+    // Chnaging the text content of the button 
+    const leaderboardButton = document.getElementById('leaderboardbutton');
+    if(leaderboardButton !== null){
+        leaderboardButton.textContent = "Click Here to See Expense Leaderboard" 
+    }
+    // Remove all rows from the table body ; I i dont do this then new data is added below this everytime 'see leaderboard' button is clicked
     while (tableBody.firstChild) {
     tableBody.removeChild(tableBody.firstChild);
     }
     return; 
 };
+

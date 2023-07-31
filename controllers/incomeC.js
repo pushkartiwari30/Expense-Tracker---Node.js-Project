@@ -8,7 +8,7 @@ exports.addIncome  = async (req, res) => {
         const desc = req.body.desc;
         const cat = req.body.cat;
         console.log(req.user.id);
-        const income = await Income.create({ amount: amount, description: desc, category: cat, userId:req.user.id })
+        const income = await Income.create({ amountInc: amount, description: desc, category: cat, userId:req.user.id })
         res.status(201).json({ data: income });
     }
     catch (err) {

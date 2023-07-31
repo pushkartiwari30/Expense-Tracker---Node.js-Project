@@ -1,36 +1,40 @@
 const Expense = require('../models/expenses');
 const Income = require('../models/incomes');
 const User = require('../models/user');
+const sequelize = require('sequelize');
 
 exports.showLeaderboard = async(req,res) =>{
+    // refer notes to see what optimisatiosn we did and how does it affects
+    // Optim 1: using attributes      // Optim 2: using sequelize fn  // Optim 3: Using Joins (left jon bydefault )//Optim 4 : USing order feature to sort
     try {
-        const expenses = await Expense.findAll();
-        const incomes = await Income.findAll();
-        const users = await User.findAll();
-        userAggregatedExpenses= {}; // an object that will stro the all the expense of respectibe userIds as key value pairs
-        expenses.forEach(expense => {
-            if(userAggregatedExpenses[expense.userId]){
-                userAggregatedExpenses[expense.userId] = userAggregatedExpenses[expense.userId]+expense.amount;            
-            }
-            else{
-                userAggregatedExpenses[expense.userId] = expense.amount;
-            }
-        });
-        userAggregatedIncomes= {}; // an object that will stro the all the expense of respectibe userIds as key value pairs
-        
-        var userLeaderboardDetails = [];
-        users.forEach(user =>{
-            if(userAggregatedExpenses[user.id]==undefined){ // for those user who have not added any expense
-                userLeaderboardDetails.push({name: user.name, total_cost: 0});
-            }
-            else{
-                userLeaderboardDetails.push({name: user.name, total_cost: userAggregatedExpenses[user.id]});
-            }
-        })
-        //console.log(userAggregatedExpenses);
-        userLeaderboardDetails.sort((a,b)=> a.total_cost-b.total_cost )
-        console.log(userLeaderboardDetails);
-        res.status(200).json(userLeaderboardDetails);
+        const leaderboardData = await User.findAll({
+            attributes: [
+              'id',
+              'name',
+              [sequelize.fn('sum', sequelize.col('amountExp')), 'total_expense'],
+            ],
+            include: [
+              {
+                model: Expense,
+                attributes: []
+              },
+            ],
+            group: ['user.id'],
+            order:[['total_expense','DESC']]
+          });
+
+
+
+        // see whta yash sir wrotw in yh code and checkc if according to hi code i am getting the tota correct separately. 
+
+
+          
+          // The leaderboardData variable will now contain an array of objects, each representing a user with their "id", "name", "total_expense", and "total_income".
+          
+        //console.log(leaderboardData);
+        //console.log(leaderboardDataExpense);
+
+        res.status(200).json(leaderboardData);
         
       } catch (err) {
         console.error(err);
