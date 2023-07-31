@@ -9,7 +9,21 @@ exports.addIncome  = async (req, res) => {
         const cat = req.body.cat;
         console.log(req.user.id);
         const income = await Income.create({ amountInc: amount, description: desc, category: cat, userId:req.user.id })
-        res.status(201).json({ data: income });
+        const totalIncomeData = await User.findByPk(req.user.id)
+            .then((user)=>{
+                let newTotalIncome = 0;
+                console.log(typeof newTotalIncome)
+                if(user.totalIncome === null){
+                    newTotalIncome = amount;
+                }
+                else{
+                    newTotalIncome = user.totalIncome+parseFloat(amount);
+                }
+                user.update({totalIncome: newTotalIncome});
+                return newTotalIncome;
+            });
+            console.log(totalIncomeData);
+        res.status(201).json({ data: income, totalIncomeData: totalIncomeData });
     }
     catch (err) {
         console.log(err);

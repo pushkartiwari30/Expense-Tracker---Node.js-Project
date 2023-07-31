@@ -5,37 +5,19 @@ const sequelize = require('sequelize');
 
 exports.showLeaderboard = async(req,res) =>{
     // refer notes to see what optimisatiosn we did and how does it affects
-    // Optim 1: using attributes      // Optim 2: using sequelize fn  // Optim 3: Using Joins (left jon bydefault )//Optim 4 : USing order feature to sort
+    // Optim 1: using attributes      // Optim 2: using sequelize fn  // Optim 3: Using Joins (left jon bydefault )//Optim 4 : USing order feature to sort //Potim 5: stroing the total expense and income in the user table. (Explanation in the notes t11)
     try {
         const leaderboardData = await User.findAll({
             attributes: [
               'id',
               'name',
-              [sequelize.fn('sum', sequelize.col('amountExp')), 'total_expense'],
-            ],
-            include: [
-              {
-                model: Expense,
-                attributes: []
-              },
-            ],
-            group: ['user.id'],
-            order:[['total_expense','DESC']]
+              [sequelize.literal('((totalIncome - totalExpense) / totalIncome) * 100'), 'saving_percentage']
+              ],
+            order: [['saving_percentage', 'DESC']]
           });
-
-
-
-        // see whta yash sir wrotw in yh code and checkc if according to hi code i am getting the tota correct separately. 
-
-
-          
-          // The leaderboardData variable will now contain an array of objects, each representing a user with their "id", "name", "total_expense", and "total_income".
-          
         //console.log(leaderboardData);
-        //console.log(leaderboardDataExpense);
-
+        // The leaderboardData variable will now contain an array of objects, each representing a user with their "id", "name", "total_expense", and "saving_percentage".
         res.status(200).json(leaderboardData);
-        
       } catch (err) {
         console.error(err);
       }

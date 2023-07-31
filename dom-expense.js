@@ -211,12 +211,22 @@ addExpenseForm.addEventListener('submit', (event) => {
 })
 
 const deleteFn = function (newRow) {
+    //frontend code:
     hideLeaderboard(); //closing leaderboard
-    console.log(newRow.id);
+
+    numExpenseTotal =parseFloat(totalExpense.innerHTML)-parseFloat(newRow.firstChild.textContent);
+        numIncomeTotal= parseFloat(totalIncome.innerHTML)
+        numBalance = numIncomeTotal-numExpenseTotal;
+         
+        totalExpense.innerHTML = numExpenseTotal.toString()
+        balance.innerHTML= numBalance.toString();
+
+    //backend code:
     obj = {
-        id: newRow.id
+        id: newRow.id,
+        amount: newRow.firstChild.textContent
     }
-    axios.post("http://localhost:3000/expense/deleteexpense", obj)
+    axios.post("http://localhost:3000/expense/deleteexpense", obj, { headers: { "Authorization": token }})
         .then(() => {
             console.log("deleted")
         })
@@ -285,12 +295,23 @@ addIncomeForm.addEventListener('submit', (event) => {
 })
 
 const deleteFn1 = function (newRow1) {
-    console.log(newRow1.id);
+    //frontend code:
     hideLeaderboard(); //closing leaderboard
+
+    //changing the total income and balance total value in UI
+    numExpenseTotal =parseFloat(totalExpense.innerHTML);
+    numIncomeTotal= parseFloat(totalIncome.innerHTML)-parseFloat(newRow1.firstChild.textContent)
+    numBalance = numIncomeTotal-numExpenseTotal;
+     
+    totalIncome.innerHTML = numIncomeTotal.toString()
+    balance.innerHTML= numBalance.toString();
+    
+    //backend code:
     obj = {
-        id: newRow1.id
+        id: newRow1.id,
+        amount: newRow1.firstChild.textContent
     }
-    axios.post("http://localhost:3000/income/deleteincome", obj)
+    axios.post("http://localhost:3000/income/deleteincome", obj, { headers: { "Authorization": token }})
         .then(() => {
             console.log("deleted")
         })
@@ -383,6 +404,7 @@ const showLeaderboard = async() =>{
             // adding data to the table
             let r=1; // this  is count for rank display
             res.data.forEach((user)=>{
+                console.log(user);
                 const row = document.createElement('tr');
                 const rankCell = document.createElement('td');
                 const nameCell = document.createElement('td');
@@ -391,8 +413,8 @@ const showLeaderboard = async() =>{
                 rankCell.textContent = r;
                 r++;
                 nameCell.textContent = user.name;
-                if(user.total_expense !== null){
-                    expenseCell.textContent = user.total_expense;
+                if(user.saving_percentage !== null){
+                    expenseCell.textContent = 100-parseFloat(user.saving_percentage)+"%";
                 }
                 else{
                     expenseCell.textContent = "Expense or Income or Both Not Added"

@@ -15,7 +15,9 @@ const User = sequelize.define('user', {
         unique: true
     },
     password: Sequelize.STRING,
-    ispremiumuser: Sequelize.BOOLEAN
+    ispremiumuser: Sequelize.BOOLEAN,
+    totalExpense: Sequelize.DOUBLE,
+    totalIncome : Sequelize.DOUBLE
 });
 
 module.exports = User;

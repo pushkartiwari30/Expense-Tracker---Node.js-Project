@@ -1,15 +1,29 @@
 const Expense = require('../models/expenses');
-const User = require('../models/user')
+const User = require('../models/user');
 
 exports.addExpense  = async (req, res) => {
     try {
-        console.log(req.body);
+        //console.log(req.body);
         const amount = req.body.amount;
         const desc = req.body.desc;
         const cat = req.body.cat;
         console.log(req.user.id);
-        const expense = await Expense.create({ amountExp: amount, description: desc, category: cat, userId:req.user.id })
-        res.status(201).json({ data: expense });
+        const expense = await Expense.create({ amountExp: amount, description: desc, category: cat, userId:req.user.id });
+        const totalExpenseData = await User.findByPk(req.user.id)
+            .then((user)=>{
+                let newTotalExpense = 0;
+                console.log(typeof newTotalExpense)
+                if(user.totalExpense === null){
+                    newTotalExpense = amount;
+                }
+                else{
+                    newTotalExpense = user.totalExpense+parseFloat(amount);
+                }
+                user.update({totalExpense: newTotalExpense});
+                return newTotalExpense;
+            });
+            console.log(totalExpenseData);
+        res.status(201).json({ data: expense, totalExpenseData: totalExpenseData });
     }
     catch (err) {
         console.log(err);
@@ -18,10 +32,16 @@ exports.addExpense  = async (req, res) => {
 
 exports.deleteExpense = async (req, res) => {
     try {
-        console.log(req.body.id);
         await Expense.destroy({
             where: { id: req.body.id },
         });
+        //changing the toralExpense data in the user table
+        await User.findByPk(req.user.id)
+            .then((user)=>{
+                newTotalExpense = user.totalExpense-parseFloat(req.body.amount);
+                user.update({totalExpense: newTotalExpense});
+                //return newTotalExpense;
+            });
         console.log("expense deleted");
         res.sendStatus(204);
     }
