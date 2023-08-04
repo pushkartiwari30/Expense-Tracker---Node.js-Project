@@ -1,46 +1,70 @@
 const Income = require('../models/incomes');
-const User = require('../models/user')
+const User = require('../models/user');
+const sequelize = require('../util/database');
 
-exports.addIncome  = async (req, res) => {
+
+exports.addIncome = async (req, res) => {
+    const t = await sequelize.transaction(); // Creating transaction object
     try {
-        //console.log(req.body);
         const amount = req.body.amount;
+        console.log("Amount =")
+        console.log(amount);
         const desc = req.body.desc;
         const cat = req.body.cat;
         console.log(req.user.id);
-        const income = await Income.create({ amountInc: amount, description: desc, category: cat, userId:req.user.id })
-        const totalIncomeData = await User.findByPk(req.user.id)
-            .then((user)=>{
-                let newTotalIncome = 0;
-                console.log(typeof newTotalIncome)
-                if(user.totalIncome === null){
-                    newTotalIncome = amount;
-                }
-                else{
-                    newTotalIncome = user.totalIncome+parseFloat(amount);
-                }
-                user.update({totalIncome: newTotalIncome});
-                return newTotalIncome;
-            });
-            console.log(totalIncomeData);
-        res.status(201).json({ data: income, totalIncomeData: totalIncomeData });
+
+        const income = await Income.create(
+            { amountInc: amount, description: desc, category: cat, userId: req.user.id },
+            { transaction: t }
+        );
+        const user = await User.findByPk(req.user.id, { transaction: t });
+        console.log(user);
+        let newTotalIncome = 0;
+        if (user.totalIncome === null) {
+            newTotalIncome = amount;
+        }
+        else {
+            newTotalIncome = user.totalIncome + parseFloat(amount);
+        }
+
+        await user.update({ totalIncome: newTotalIncome }, { transaction: t });
+        await t.commit(); // Commit the transaction
+        console.log(newTotalIncome);
+        console.log("updated")
+        res.status(201).json({ data: income });
+    } catch (err) {
+        //await t.rollback();
+        console.error(err);
+        res.status(500).json({ error: err });
     }
-    catch (err) {
-        console.log(err);
-    }
-}
+};
 
 exports.deleteIncome = async (req, res) => {
+    const t = await sequelize.transaction(); // Creating transaction object
     try {
         //console.log(req.body.id);
         await Income.destroy({
             where: { id: req.body.id },
+            transaction: t
         });
-        console.log("income deleted");
-        res.sendStatus(204);
+        // Changing the totalIncome data in the user table
+        const user = await User.findByPk(req.user.id, { transaction: t });
+        if (user) {
+            const newTotalIncome = user.totalIncome - parseFloat(req.body.amount);
+            await user.update({ totalIncome: newTotalIncome }, { transaction: t });
+            await t.commit(); // Commit the transaction
+            console.log("Income deleted");
+            res.sendStatus(204);
+        } else {
+            await t.rollback(); // Rollback the transaction
+            console.log("User not found");
+            res.sendStatus(404);
+        }
     }
     catch (err) {
-        console.log(err);
+        await t.rollback(); // Rollback the transaction
+        console.error(err);
+        res.status(500).json({ error: err });
     }
 }
 

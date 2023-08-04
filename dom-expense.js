@@ -31,126 +31,126 @@ const token = localStorage.getItem('token');
 let incomeSumTotal = 0;
 let expenseSumtotal = 0;
 
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', () => {
     axios.get("http://localhost:3000/expense/getexpenses", { headers: { "Authorization": token } })
-    .then((res) => {
-        // chekcing if the loggedin user is a premiusm user or not. if he is then : 
-        // remove the premium button. 
-        if (res.data.isPremiumUser) {
-            premiumButton.remove(); //removing buy premium butoon
-            //Adding 'You are a premium user'. 
-            const parentDiv = document.querySelector('.left-side');
-            const premiumDiv = document.createElement('div');
-            premiumDiv.textContent = "You are a Premium User";
-            premiumDiv.id = "premium-user"
-            parentDiv.appendChild(premiumDiv);
+        .then((res) => {
+            // chekcing if the loggedin user is a premiusm user or not. if he is then : 
+            // remove the premium button. 
+            if (res.data.isPremiumUser) {
+                premiumButton.remove(); //removing buy premium butoon
+                //Adding 'You are a premium user'. 
+                const parentDiv = document.querySelector('.left-side');
+                const premiumDiv = document.createElement('div');
+                premiumDiv.textContent = "You are a Premium User";
+                premiumDiv.id = "premium-user"
+                parentDiv.appendChild(premiumDiv);
 
-            // Adding Leaderboard button 
-            const leaderboardButton = document.createElement('button');
-            leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
-            leaderboardButton.id = "leaderboardbutton";
-            parentDiv.appendChild(leaderboardButton);
+                // Adding Leaderboard button 
+                const leaderboardButton = document.createElement('button');
+                leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
+                leaderboardButton.id = "leaderboardbutton";
+                parentDiv.appendChild(leaderboardButton);
 
-            leaderboardButton.addEventListener('click', ()=>{
-                if(leaderboardButton.textContent === "Click Here to See Expense Leaderboard"){
-                    
-                    console.log("clcked 1");
-                    leaderboardButton.textContent = "Click Here to Hide Expense Leaderboard";
-                    showLeaderboard();
-                }
-                else if(leaderboardButton.textContent === "Click Here to Hide Expense Leaderboard"){
-                    console.log("clcked 2");
-                    leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
-                    hideLeaderboard();
-                }
-            })
-        }
+                leaderboardButton.addEventListener('click', () => {
+                    if (leaderboardButton.textContent === "Click Here to See Expense Leaderboard") {
 
-        //console.log(res.data.allExpense);
-        const expense = res.data.allExpense;
-        expense.forEach(obj => {
-            console.log(obj)
-            // Create new table row
-            const newRow = document.createElement('tr');
+                        console.log("clcked 1");
+                        leaderboardButton.textContent = "Click Here to Hide Expense Leaderboard";
+                        showLeaderboard();
+                    }
+                    else if (leaderboardButton.textContent === "Click Here to Hide Expense Leaderboard") {
+                        console.log("clcked 2");
+                        leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
+                        hideLeaderboard();
+                    }
+                })
+            }
 
-            expenseSumtotal=expenseSumtotal+obj.amountExp;
-            const expenseDetail = [obj.amountExp, obj.description, obj.category];
-            expenseDetail.forEach(function (value) {
-                const newCell = document.createElement('td');
-                newCell.textContent = value;
-                newRow.appendChild(newCell);
+            //console.log(res.data.allExpense);
+            const expense = res.data.allExpense;
+            expense.forEach(obj => {
+                console.log(obj)
+                // Create new table row
+                const newRow = document.createElement('tr');
+
+                expenseSumtotal = expenseSumtotal + obj.amountExp;
+                const expenseDetail = [obj.amountExp, obj.description, obj.category];
+                expenseDetail.forEach(function (value) {
+                    const newCell = document.createElement('td');
+                    newCell.textContent = value;
+                    newRow.appendChild(newCell);
+                });
+
+                // Create delete button cell
+                const deleteCell = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('delete-button');
+
+                newRow.id = obj.id;
+
+                deleteButton.addEventListener('click', function () {
+                    // Remove the row from the table when delete button is clicked
+                    deleteFn(newRow);
+                    newRow.remove();
+                });
+                deleteCell.appendChild(deleteButton);
+                newRow.appendChild(deleteCell);
+
+                // Append the new row to the table body
+                tbody.appendChild(newRow);
             });
+            //console.log(expenseSumtotal);
+            totalExpense.innerHTML = expenseSumtotal;
 
-            // Create delete button cell
-            const deleteCell = document.createElement('td');
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.classList.add('delete-button');
-
-            newRow.id = obj.id;
-
-            deleteButton.addEventListener('click', function () {
-                // Remove the row from the table when delete button is clicked
-                deleteFn(newRow);
-                newRow.remove();
-            });
-            deleteCell.appendChild(deleteButton);
-            newRow.appendChild(deleteCell);
-
-            // Append the new row to the table body
-            tbody.appendChild(newRow); 
-        });
-        //console.log(expenseSumtotal);
-        totalExpense.innerHTML = expenseSumtotal;
-
-    })
-    .catch((err) => {
-        console.log(err);
-    })
+        })
+        .catch((err) => {
+            console.log(err);
+        })
     hideLeaderboard()// hidning the leader booard after refresh
     //   <---------------------------------Get Req for Incomes ---------------------------------> 
     axios.get("http://localhost:3000/income/getincomes", { headers: { "Authorization": token } })
-    .then((res) => {
-        //console.log(res.data.allIncome);
-        const income = res.data.allIncome;
-        income.forEach(obj => {
-            // Create new table row
-            const newRow1 = document.createElement('tr');
-            incomeSumTotal=incomeSumTotal+obj.amountInc; // to dsply the sum of income on UI
-            const incomeDetail = [obj.amountInc, obj.description, obj.category];
-            incomeDetail.forEach(function (value) {
-                const newCell1 = document.createElement('td');
-                newCell1.textContent = value;
-                newRow1.appendChild(newCell1);
+        .then((res) => {
+            //console.log(res.data.allIncome);
+            const income = res.data.allIncome;
+            income.forEach(obj => {
+                // Create new table row
+                const newRow1 = document.createElement('tr');
+                incomeSumTotal = incomeSumTotal + obj.amountInc; // to dsply the sum of income on UI
+                const incomeDetail = [obj.amountInc, obj.description, obj.category];
+                incomeDetail.forEach(function (value) {
+                    const newCell1 = document.createElement('td');
+                    newCell1.textContent = value;
+                    newRow1.appendChild(newCell1);
+                });
+
+                // Create delete button cell
+                const deleteCell1 = document.createElement('td');
+                const deleteButton1 = document.createElement('button');
+                deleteButton1.textContent = 'Delete';
+                deleteButton1.classList.add('delete-button1');
+
+                newRow1.id = obj.id;
+
+                deleteButton1.addEventListener('click', function () {
+                    // Remove the row from the table when delete button is clicked
+                    deleteFn1(newRow1);
+                    newRow1.remove();
+                });
+                deleteCell1.appendChild(deleteButton1);
+                newRow1.appendChild(deleteCell1);
+
+                // Append the new row to the table body
+                tbody1.appendChild(newRow1);
             });
+            console.log(incomeSumTotal);
+            totalIncome.innerHTML = incomeSumTotal;
+            balance.innerHTML = incomeSumTotal - expenseSumtotal;
 
-            // Create delete button cell
-            const deleteCell1 = document.createElement('td');
-            const deleteButton1 = document.createElement('button');
-            deleteButton1.textContent = 'Delete';
-            deleteButton1.classList.add('delete-button1');
-
-            newRow1.id = obj.id;
-
-            deleteButton1.addEventListener('click', function () {
-                // Remove the row from the table when delete button is clicked
-                deleteFn1(newRow1);
-                newRow1.remove();
-            });
-            deleteCell1.appendChild(deleteButton1);
-            newRow1.appendChild(deleteCell1);
-
-            // Append the new row to the table body
-            tbody1.appendChild(newRow1); 
-        });
-        console.log(incomeSumTotal);
-        totalIncome.innerHTML = incomeSumTotal;
-        balance.innerHTML = incomeSumTotal-expenseSumtotal;
-
-    })
-    .catch((err) => {
-        console.log(err);
-    })
+        })
+        .catch((err) => {
+            console.log(err);
+        })
 })
 
 addExpenseForm.addEventListener('submit', (event) => {
@@ -168,6 +168,7 @@ addExpenseForm.addEventListener('submit', (event) => {
             // Create new table row
             const newRow = document.createElement('tr');
             // Create table data cells
+            console.log(amount.value);
             const expenseDetail = [amount.value, desc.value, cat.value];
             expenseDetail.forEach(function (value) {
                 const newCell = document.createElement('td');
@@ -191,44 +192,41 @@ addExpenseForm.addEventListener('submit', (event) => {
             deleteCell.appendChild(deleteButton);
             newRow.appendChild(deleteCell);
 
-
-
             // Append the new row to the table body
             tbody.appendChild(newRow);
+
+            //changing the total exp and balance total value in UI
+            numExpenseTotal = parseFloat(totalExpense.innerHTML) + parseFloat(amount.value);
+            numIncomeTotal = parseFloat(totalIncome.innerHTML)
+            numBalance = numIncomeTotal - numExpenseTotal;
+
+            totalExpense.innerHTML = numExpenseTotal.toString()
+            balance.innerHTML = numBalance.toString();
+
             // Reset the form
             addExpenseForm.reset();
         })
         .catch((err) => {
             console.log(err);
         })
-        //changing the total exp and balance total value in UI
-        numExpenseTotal =parseFloat(totalExpense.innerHTML)+parseFloat(amount.value);
-        numIncomeTotal= parseFloat(totalIncome.innerHTML)
-        numBalance = numIncomeTotal-numExpenseTotal;
-         
-        totalExpense.innerHTML = numExpenseTotal.toString()
-        balance.innerHTML= numBalance.toString();
+
 })
 
 const deleteFn = function (newRow) {
-    //frontend code:
     hideLeaderboard(); //closing leaderboard
-
-    numExpenseTotal =parseFloat(totalExpense.innerHTML)-parseFloat(newRow.firstChild.textContent);
-        numIncomeTotal= parseFloat(totalIncome.innerHTML)
-        numBalance = numIncomeTotal-numExpenseTotal;
-         
-        totalExpense.innerHTML = numExpenseTotal.toString()
-        balance.innerHTML= numBalance.toString();
-
-    //backend code:
     obj = {
         id: newRow.id,
         amount: newRow.firstChild.textContent
     }
-    axios.post("http://localhost:3000/expense/deleteexpense", obj, { headers: { "Authorization": token }})
+    axios.post("http://localhost:3000/expense/deleteexpense", obj, { headers: { "Authorization": token } })
         .then(() => {
-            console.log("deleted")
+            console.log("deleted");
+            numExpenseTotal = parseFloat(totalExpense.innerHTML) - parseFloat(newRow.firstChild.textContent);
+            numIncomeTotal = parseFloat(totalIncome.innerHTML)
+            numBalance = numIncomeTotal - numExpenseTotal;
+
+            totalExpense.innerHTML = numExpenseTotal.toString()
+            balance.innerHTML = numBalance.toString();
         })
         .catch((err) => {
             console.log(err);
@@ -278,6 +276,16 @@ addIncomeForm.addEventListener('submit', (event) => {
 
             // Append the new row to the table body
             tbody1.appendChild(newRow1);
+
+
+            //changing the total income and balance total value in UI
+            numExpenseTotal = parseFloat(totalExpense.innerHTML);
+            numIncomeTotal = parseFloat(totalIncome.innerHTML) + parseFloat(amount1.value)
+            numBalance = numIncomeTotal - numExpenseTotal;
+
+            totalIncome.innerHTML = numIncomeTotal.toString()
+            balance.innerHTML = numBalance.toString();
+
             // Reset the form
             addIncomeForm.reset();
 
@@ -285,35 +293,24 @@ addIncomeForm.addEventListener('submit', (event) => {
         .catch((err) => {
             console.log(err);
         });
-        //changing the total income and balance total value in UI
-        numExpenseTotal =parseFloat(totalExpense.innerHTML);
-        numIncomeTotal= parseFloat(totalIncome.innerHTML)+parseFloat(amount1.value)
-        numBalance = numIncomeTotal-numExpenseTotal;
-         
-        totalIncome.innerHTML = numIncomeTotal.toString()
-        balance.innerHTML= numBalance.toString();
 })
 
 const deleteFn1 = function (newRow1) {
-    //frontend code:
     hideLeaderboard(); //closing leaderboard
-
-    //changing the total income and balance total value in UI
-    numExpenseTotal =parseFloat(totalExpense.innerHTML);
-    numIncomeTotal= parseFloat(totalIncome.innerHTML)-parseFloat(newRow1.firstChild.textContent)
-    numBalance = numIncomeTotal-numExpenseTotal;
-     
-    totalIncome.innerHTML = numIncomeTotal.toString()
-    balance.innerHTML= numBalance.toString();
-    
-    //backend code:
     obj = {
         id: newRow1.id,
         amount: newRow1.firstChild.textContent
     }
-    axios.post("http://localhost:3000/income/deleteincome", obj, { headers: { "Authorization": token }})
+    axios.post("http://localhost:3000/income/deleteincome", obj, { headers: { "Authorization": token } })
         .then(() => {
-            console.log("deleted")
+            console.log("deleted");
+            //changing the total income and balance total value in UI
+            numExpenseTotal = parseFloat(totalExpense.innerHTML);
+            numIncomeTotal = parseFloat(totalIncome.innerHTML) - parseFloat(newRow1.firstChild.textContent)
+            numBalance = numIncomeTotal - numExpenseTotal;
+
+            totalIncome.innerHTML = numIncomeTotal.toString()
+            balance.innerHTML = numBalance.toString();
         })
         .catch((err) => {
             console.log(err);
@@ -359,14 +356,14 @@ premiumButton.addEventListener('click', async function (e) {
             leaderboardButton.id = "leaderboardbutton";
             parentDiv.appendChild(leaderboardButton);
 
-            leaderboardButton.addEventListener('click', ()=>{
-                if(leaderboardButton.textContent === "Click Here to See Expense Leaderboard"){
-                    
+            leaderboardButton.addEventListener('click', () => {
+                if (leaderboardButton.textContent === "Click Here to See Expense Leaderboard") {
+
                     console.log("clcked 1");
                     leaderboardButton.textContent = "Click Here to Hide Expense Leaderboard";
                     showLeaderboard();
                 }
-                else if(leaderboardButton.textContent === "Click Here to Hide Expense Leaderboard"){
+                else if (leaderboardButton.textContent === "Click Here to Hide Expense Leaderboard") {
                     console.log("clcked 2");
                     leaderboardButton.textContent = "Click Here to See Expense Leaderboard";
                     hideLeaderboard();
@@ -392,18 +389,18 @@ premiumButton.addEventListener('click', async function (e) {
 
 
 // Leader Board 
-const showLeaderboard = async() =>{
+const showLeaderboard = async () => {
     console.log("Show Lead button Clicked");
     await axios.get("http://localhost:3000/premium/showLeaderboard")
-        .then((res)=>{
+        .then((res) => {
             console.log(res.data);
             // Toggle the visibility of the div
             if (leaderboardContainer.style.display === 'none') {
                 leaderboardContainer.style.display = 'block';
             }
             // adding data to the table
-            let r=1; // this  is count for rank display
-            res.data.forEach((user)=>{
+            let r = 1; // this  is count for rank display
+            res.data.forEach((user) => {
                 console.log(user);
                 const row = document.createElement('tr');
                 const rankCell = document.createElement('td');
@@ -413,35 +410,36 @@ const showLeaderboard = async() =>{
                 rankCell.textContent = r;
                 r++;
                 nameCell.textContent = user.name;
-                if(user.saving_percentage !== null){
-                    expenseCell.textContent = 100-parseFloat(user.saving_percentage)+"%";
+                if (user.saving_percentage !== null) {
+                    console.log(typeof parseFloat(user.saving_percentage.toFixed(2)))
+                    expenseCell.textContent = (100 - parseFloat(user.saving_percentage)).toFixed(2) + "%";
                 }
-                else{
+                else {
                     expenseCell.textContent = "Expense or Income or Both Not Added"
                 }
-                
+
                 row.appendChild(rankCell);
                 row.appendChild(nameCell);
                 row.appendChild(expenseCell);
                 tableBody.appendChild(row);
                 console.log(user.total_expense);
-            })                                                                                  
+            })
         })
     return;
 };
 
-const hideLeaderboard = () =>{
+const hideLeaderboard = () => {
     console.log("Hide Lead button Clicked");
     leaderboardContainer.style.display = 'none'; // removing leader borad from UI
     // Chnaging the text content of the button 
     const leaderboardButton = document.getElementById('leaderboardbutton');
-    if(leaderboardButton !== null){
-        leaderboardButton.textContent = "Click Here to See Expense Leaderboard" 
+    if (leaderboardButton !== null) {
+        leaderboardButton.textContent = "Click Here to See Expense Leaderboard"
     }
     // Remove all rows from the table body ; I i dont do this then new data is added below this everytime 'see leaderboard' button is clicked
     while (tableBody.firstChild) {
-    tableBody.removeChild(tableBody.firstChild);
+        tableBody.removeChild(tableBody.firstChild);
     }
-    return; 
+    return;
 };
 
