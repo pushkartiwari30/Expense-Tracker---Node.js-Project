@@ -17,6 +17,7 @@ const expenseRoutes = require('./routes/expenseR');
 const incomeRoutes = require('./routes/incomeR');
 const purchaseRoutes = require('./routes/purchaseR');
 const premiumRoutes = require('./routes/premiumR');
+const forgotPasswordRoutes = require('./routes/passwordR');
 
 app.use(cors());
 app.use(bodyParser.json({ extended: false }));
@@ -27,6 +28,7 @@ app.use('/expense',expenseRoutes);
 app.use('/income',incomeRoutes);
 app.use('/purchase',purchaseRoutes);
 app.use('/premium', premiumRoutes);
+app.use('/password', forgotPasswordRoutes);
 
 //tables relationship
 User.hasMany(Expense);  // one to many

@@ -1,23 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Form</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker App - Log In</title>
+  <link rel="stylesheet" type="text/css" href="style\login.css">
 </head>
+
 <body>
-    <h2>Login Form</h2>
-  <form action="user/login" method="POST" id="loginForm">
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required><br><br>
+  <div class="login-container">
+    <h2>Expense Tracker App - Log In</h2>
+    <form action="user/login" method="POST" id="loginForm">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required><br><br>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required><br><br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required><br><br>
 
-    <input type="submit" value="Login">
-  </form>
-  <p id="error-message"></p>
+      <input type="submit" value="Login">
+    </form>
+    <p id="error-message"></p>
+
+    <button id="forgot-password">Forgot Password</button>
+    <div id="forgot-password-div" style="display: none;">
+      <h3>Forgot Password Form</h3>
+      <form id="forgot-password-form">
+        <input type="email" id="forgot-password-email" placeholder="Enter your email">
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+  </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 <script src="dom-login.js"></script>
+
 </html>
