@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 
+
 const sequelize = require('./util/database');
 const User = require('./models/user');
 const Expense = require('./models/expenses');
@@ -24,9 +25,9 @@ app.use(bodyParser.json({ extended: false }));
 
 app.use(signupRoutes);
 app.use(loginRoutes);
-app.use('/expense',expenseRoutes);
-app.use('/income',incomeRoutes);
-app.use('/purchase',purchaseRoutes);
+app.use('/expense', expenseRoutes);
+app.use('/income', incomeRoutes);
+app.use('/purchase', purchaseRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/password', forgotPasswordRoutes);
 
