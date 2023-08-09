@@ -3,6 +3,7 @@ const password = document.getElementById('password');
 const errorElement = document.getElementById("error-message");
 const forgotPasswordButton = document.getElementById("forgot-password");
 const forgotPasswordFormDiv = document.getElementById("forgot-password-div");
+const forgotPasswordForm = document.getElementById("forgot-password-form");
 
 
 
@@ -28,9 +29,6 @@ loginForm.addEventListener('submit', (event) => {
             if (res.data.message == 'Logged in Sucessfully') {
                 window.location.href = 'expense.html';
             }
-
-
-
         })
         .catch((error) => {
             console.log(error.response.data.message);
@@ -52,6 +50,9 @@ forgotPasswordButton.addEventListener('click', () => {
                 .then(res => {
                     console.log("req sent");
                     console.log(res);
+                    forgotPasswordForm.reset();
+                    forgotPasswordFormDiv.style.display = "none";
+                    alert("Please Check Your Email for Reset Password Link");
                 })
                 .catch(err => {
                     console.log(err)
