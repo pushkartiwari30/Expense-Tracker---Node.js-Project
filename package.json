@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/pushkartiwari30/Expense-Tracker---Node.js-Project#readme",
   "dependencies": {
+    "aws-sdk": "^2.1438.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

@@ -47,6 +47,51 @@
     font-size: 23px;
 }
 
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup {
+    display: none;
+    background-color: white;
+    width: 90%;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+
+    /* Position the popup 10% below the top of the overlay */
+    position: absolute;
+    top: 10%;
+    left: 5%; /* To center the popup horizontally */
+
+    /* Add a maximum height and enable scrolling for the popup */
+    max-height: 80%; 
+    overflow-y: auto;
+}
+
+#closeButton {
+    background-color: #ff4f1e; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 14px; 
+}
+
+#closeButton:hover {
+    background-color: #ff3333; 
+}
+
 /* Previous styling for the table */
 table.leaderboard-table {
     width: 100%;
@@ -216,7 +261,8 @@ h1 {
 }
 
 /* Styling for Buy Premium button */
-.premium-button {
+.premium-button,
+.download-button {
     background-color: #008CBA;
     color: white;
     padding: 10px 20px;
@@ -224,6 +270,7 @@ h1 {
     border-radius: 4px;
     cursor: pointer;
 }
+
 
 /* Styling for Sign Up and Log In buttons */
 .signup-button,

@@ -12,6 +12,7 @@ const Expense = require('./models/expenses');
 const Income = require('./models/incomes');
 const Order = require('./models/orders');
 const Password = require('./models/password');
+const FilesDownloaded = require('./models/filesdownloaded');
 
 //Routers File Imports
 const signupRoutes = require('./routes/signupR');
@@ -21,6 +22,7 @@ const incomeRoutes = require('./routes/incomeR');
 const purchaseRoutes = require('./routes/purchaseR');
 const premiumRoutes = require('./routes/premiumR');
 const passwordRoutes = require('./routes/passwordR');
+const downloadRoutes = require('./routes/downloadR');
 
 
 app.use(cors());
@@ -36,6 +38,7 @@ app.use('/income', incomeRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/password', passwordRoutes);
+app.use('/user', downloadRoutes);
 
 //tables relationship
 User.hasMany(Expense);  // one to many
@@ -49,6 +52,9 @@ Order.belongsTo(User);
 
 User.hasMany(Password);
 Password.belongsTo(User);
+
+User.hasMany(FilesDownloaded);
+FilesDownloaded.belongsTo(User);
 
 //When force: true is set, it will drop the existing tables from the database and recreate them, effectively resetting the database schema.
 sequelize.sync()

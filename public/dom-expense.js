@@ -23,6 +23,11 @@ const premiumButton = document.querySelector('.premium-button');
 const leaderboardContainer = document.querySelector('.leaderboard-container');
 const tableBody = document.querySelector('.leaderboard-table tbody');
 
+const downloadButton = document.querySelector('.download-button');
+const closeButton = document.getElementById("closeButton");
+const overlay = document.getElementById("overlay");
+const popup = document.querySelector(".popup");
+
 // const signupButton = document.querySelector('.signup-button');
 // const logoutButton = document.querySelector('.logout-button');
 
@@ -443,3 +448,59 @@ const hideLeaderboard = () => {
     return;
 };
 
+
+
+//                     //            //     //        DOWNLOAD EXPENSE+INCOME FILE            //                   //      //               //
+downloadButton.addEventListener('click', (e) => {
+    console.log("download button clicked");
+    axios.get("http://localhost:3000/user/download", { headers: { "Authorization": token } })
+        .then((res) => {
+            if (res.data.success) {
+                overlay.style.display = "flex"; // or "block"
+                    popup.style.display = "block";
+                    closeButton.addEventListener("click", () => {
+                        overlay.style.display = "none";
+                        popup.style.display = "none";
+                    });
+                const allDataOfURLTable = res.data.allDataOfURLTable;
+                allDataOfURLTable.forEach(file => {
+                    const URL = file.fileUrl;
+                    // // Convert ISO timestamp to JavaScript Date object
+                    const dateObject = new Date(file.createdAt);
+                    // Format the date and time in a more readable format
+                    const date = dateObject.toLocaleDateString(); // Example: '8/18/2023'
+                    const time = dateObject.toLocaleTimeString(); // Example: '3:31:04 PM'
+                    
+                    const data = { date, time, URL };
+                    const tableBody = document.getElementById('tableBody');
+                    const row = document.createElement('tr');
+                    const dateCell = document.createElement('td');
+                    dateCell.textContent = data.date;
+                    row.appendChild(dateCell);
+
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = data.time;
+                    row.appendChild(timeCell);
+
+                    const urlCell = document.createElement('td');
+                    const urlLink = document.createElement('a');
+                    urlLink.href = data.URL;
+                    urlLink.target = '_blank';
+
+                    // Truncate the URL to show only the first 20 characters
+                    const maxLength = 22;
+                    const truncatedURL = data.URL.length > maxLength ? data.URL.substring(0, maxLength) + '...' : data.URL;
+                    urlLink.textContent = truncatedURL;
+
+                    urlCell.appendChild(urlLink);
+                    row.appendChild(urlCell);
+                    tableBody.appendChild(row);
+                });
+            }
+            else {
+                alert(`${res.data.alert}`);
+            }
+        }).catch((err) => {
+            console.log(err);
+        });
+})
