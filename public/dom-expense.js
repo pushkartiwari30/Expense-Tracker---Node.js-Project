@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             }
 
-            //console.log(res.data.allExpense);
+            console.log(res.data.allExpense);
             const expense = res.data.allExpense;
             expense.forEach(obj => {
                 console.log(obj)
@@ -79,7 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newRow = document.createElement('tr');
 
                 expenseSumtotal = expenseSumtotal + obj.amountExp;
-                const expenseDetail = [obj.amountExp, obj.description, obj.category];
+                // // Convert ISO timestamp to JavaScript Date object
+                const dateObject = new Date(obj.createdAt);
+                // Format the date and time in a more readable format
+                const date = dateObject.toLocaleDateString(); // Example: '8/18/2023'
+                const expenseDetail = [date ,obj.amountExp, obj.description, obj.category];
                 expenseDetail.forEach(function (value) {
                     const newCell = document.createElement('td');
                     newCell.textContent = value;
@@ -122,7 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create new table row
                 const newRow1 = document.createElement('tr');
                 incomeSumTotal = incomeSumTotal + obj.amountInc; // to dsply the sum of income on UI
-                const incomeDetail = [obj.amountInc, obj.description, obj.category];
+                // // Convert ISO timestamp to JavaScript Date object
+                const dateObject = new Date(obj.createdAt);
+                // Format the date and time in a more readable format
+                const date = dateObject.toLocaleDateString(); // Example: '8/18/2023'
+                const incomeDetail = [date, obj.amountInc, obj.description, obj.category];
                 incomeDetail.forEach(function (value) {
                     const newCell1 = document.createElement('td');
                     newCell1.textContent = value;
@@ -174,7 +182,8 @@ addExpenseForm.addEventListener('submit', (event) => {
             const newRow = document.createElement('tr');
             // Create table data cells
             console.log(amount.value);
-            const expenseDetail = [amount.value, desc.value, cat.value];
+            const date = (new Date()).toLocaleDateString();
+            const expenseDetail = [date, amount.value, desc.value, cat.value];
             expenseDetail.forEach(function (value) {
                 const newCell = document.createElement('td');
                 newCell.textContent = value;
@@ -254,7 +263,8 @@ addIncomeForm.addEventListener('submit', (event) => {
             // Create new table row
             const newRow1 = document.createElement('tr');
             // Create table data cells
-            const incomeDetail = [amount1.value, desc1.value, cat1.value];
+            const date = (new Date()).toLocaleDateString();
+            const incomeDetail = [date, amount1.value, desc1.value, cat1.value];
             incomeDetail.forEach(function (value) {
                 const newCell1 = document.createElement('td');
                 newCell1.textContent = value;
