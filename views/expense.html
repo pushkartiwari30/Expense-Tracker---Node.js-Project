@@ -105,6 +105,17 @@
             </form>
         </div>
     </div>
+    <div id="rowsperpagediv" class="centered-div">
+        <label for="rowsPerPage">Rows per Page:</label>
+        <select id="rowsPerPage">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">25</option>
+            <option value="20">50</option>
+            <option value="20">100</option>
+        </select>
+        <button id="pageRefresh">Refresh Page</button>
+    </div>
     <div class="table-container">
         <div class="table1">
             <table id="expenseTable">
@@ -119,7 +130,9 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            <div id="paginationExpenses">
+            <div class="centered-container">
+                <div id="paginationExpenses" class="centered-div">
+                </div>
             </div>
         </div>
         <div class="table2">
@@ -135,7 +148,9 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            <div id="paginationIncomes">
+            <div class="centered-container">
+                <div id="paginationIncomes">
+                </div>
             </div>
         </div>
     </div>

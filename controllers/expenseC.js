@@ -68,8 +68,9 @@ exports.getExpenses = async (req, res) => {
         let totalEntries;
         console.log(req.body);
         const page = parseInt(req.query.page);
-        console.log("PAGE ==> ", page);
-        const offset = (page - 1) * 10; // the offset based on the page number and number of expenses per page (10)
+        const rows = parseInt(req.query.rows);
+        console.log("ROWS ==> ", rows);
+        const offset = (page - 1) * rows; // the offset based on the page number and number of expenses per page
 
         await Expense.count({where: {userId: req.user.id}})
             .then(async (total) => {
@@ -79,7 +80,7 @@ exports.getExpenses = async (req, res) => {
                 allExpense = await Expense.findAll({
                     where: { userId: req.user.id },
                     order: [['id', 'DESC']],
-                    limit: 10,
+                    limit: rows,
                     offset: offset,
                 });
             })
@@ -96,11 +97,11 @@ exports.getExpenses = async (req, res) => {
                         isPremiumUser: user.ispremiumuser,
                         totalExpense: user.totalExpense,
                         currentPage: page,
-                        hasNextPage: 10 * page < totalEntries,
+                        hasNextPage: rows * page < totalEntries,
                         nextPage: page + 1,
                         hasPreviousPage: page > 1,
                         previousPage: page - 1,
-                        lastPage: Math.ceil(totalEntries / 10)
+                        lastPage: Math.ceil(totalEntries / rows)
                     });
                 } else {
                     console.log("User not found.");

@@ -31,6 +31,8 @@ const popup = document.querySelector(".popup");
 const paginationExpensesContainer = document.getElementById('paginationExpenses');
 const paginationIncomesContainer = document.getElementById('paginationIncomes');
 
+const pageRefreshButton = document.getElementById('pageRefresh');
+const rowsPerPage = document.getElementById('rowsPerPage');
 // const signupButton = document.querySelector('.signup-button');
 // const logoutButton = document.querySelector('.logout-button');
 
@@ -39,8 +41,25 @@ const token = localStorage.getItem('token');
 let incomeSumTotal = 0;
 let expenseSumtotal = 0;
 
-function getExpenses(page) {
-    axios.get(`http://localhost:3000/expense/getexpenses?page=${page}`, { headers: { "Authorization": token } })
+
+// storing nmber of rows per page in the local stroarge . Bydefault value = 10; 
+if (localStorage.getItem('rows') === null) {
+    localStorage.setItem('rows', 10);
+}
+
+// Storing the page number in local storage  . This willbe used for add expense pagination . 
+// Logic: If page == 1 --> add expense. If not then redirect to page 1 and do noting else
+localStorage.setItem('expensepage1ornot', true); // by deafult the page is page 1
+localStorage.setItem('incomepage1ornot', true); // by deafult the page is page 1
+
+function getExpenses(page, rows) {
+    if (page == 1) {
+        localStorage.setItem('expensepage1ornot', true);
+    }
+    else {
+        localStorage.setItem('expensepage1ornot', false);
+    }
+    axios.get(`http://localhost:3000/expense/getexpenses?page=${page}&rows=${rows}`, { headers: { "Authorization": token } })
         .then((res) => {
             // chekcing if the loggedin user is a premiusm user or not. if he is then : 
             // remove the premium button. 
@@ -75,7 +94,6 @@ function getExpenses(page) {
             }
 
             // Pagination Code
-            console.log("RES DATA ==> ", res.data)
             showExpensePagination(res.data);
             // Code fo adding expense to the UI
             console.log(res.data.allExpense);
@@ -123,11 +141,16 @@ function getExpenses(page) {
             console.log(err);
         })
 }
-function getIncomes(page) {
-    axios.get(`http://localhost:3000/income/getincomes?page=${page}`, { headers: { "Authorization": token } })
+function getIncomes(page, rows) {
+    if (page == 1) {
+        localStorage.setItem('incomepage1ornot', true);
+    }
+    else {
+        localStorage.setItem('incomepage1ornot', false);
+    }
+    axios.get(`http://localhost:3000/income/getincomes?page=${page}&rows=${rows}`, { headers: { "Authorization": token } })
         .then((res) => {
             // Pagination Code
-            console.log("RES INCOME DATA ==> ", res.data)
             showIncomePagination(res.data);
             //console.log(res.data.allIncome);
             const income = res.data.allIncome;
@@ -176,11 +199,11 @@ function getIncomes(page) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    getExpenses(1);
+    const rows = localStorage.getItem('rows');
+    getExpenses(1, rows);
     hideLeaderboard()// hidning the leader booard after refresh
     //   <---------------------------------Get Req for Incomes ---------------------------------> 
-    getIncomes(1);
+    getIncomes(1, rows);
 })
 
 addExpenseForm.addEventListener('submit', (event) => {
@@ -195,37 +218,50 @@ addExpenseForm.addEventListener('submit', (event) => {
     axios.post("http://localhost:3000/expense/addexpense", expObj, { headers: { "Authorization": token } })
         .then((res) => {
             console.log(res.data.data.id);
-            // Create new table row
-            const newRow = document.createElement('tr');
-            // Create table data cells
-            console.log(amount.value);
-            const date = (new Date()).toLocaleDateString();
-            const expenseDetail = [date, amount.value, desc.value, cat.value];
-            expenseDetail.forEach(function (value) {
-                const newCell = document.createElement('td');
-                newCell.textContent = value;
-                newRow.appendChild(newCell);
-            });
+            if (localStorage.getItem('expensepage1ornot') === 'true') { // I am not adding expeses for pages other than first page  in the UI
+                // Create new table row
+                const newRow = document.createElement('tr');
+                // Create table data cells
+                console.log(amount.value);
+                const date = (new Date()).toLocaleDateString();
+                const expenseDetail = [date, amount.value, desc.value, cat.value];
+                expenseDetail.forEach(function (value) {
+                    const newCell = document.createElement('td');
+                    newCell.textContent = value;
+                    newRow.appendChild(newCell);
+                });
 
-            // Create delete button cell
-            const deleteCell = document.createElement('td');
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.classList.add('delete-button');
+                // Create delete button cell
+                const deleteCell = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('delete-button');
 
-            newRow.id = res.data.data.id;
+                newRow.id = res.data.data.id;
 
-            deleteButton.addEventListener('click', function () {
-                // Remove the row from the table when delete button is clicked
-                deleteFn(newRow);
-                newRow.remove();
-            });
-            deleteCell.appendChild(deleteButton);
-            newRow.appendChild(deleteCell);
+                deleteButton.addEventListener('click', function () {
+                    // Remove the row from the table when delete button is clicked
+                    deleteFn(newRow);
+                    newRow.remove();
+                });
+                deleteCell.appendChild(deleteButton);
+                newRow.appendChild(deleteCell);
 
-            // Append the new row to the table body
-            tbody.appendChild(newRow);
-
+                // Append the new row to the table body. But on top of the existing list
+                tbody.insertBefore(newRow, tbody.firstChild);
+                //Deleteing that last elemnt of the list of tbody so tha number of rows remian same. 
+                const lastRow = tbody.lastElementChild;
+                if (lastRow) {
+                    tbody.removeChild(lastRow);
+                }
+            }
+            else {
+                // not addin the expense but just redicreting to page 1 
+                const rows = localStorage.getItem('rows');
+                tbody.innerHTML = '';
+                getExpenses(1, rows);
+                premiumRemoveForPagination();
+            }
             //changing the total exp and balance total value in UI
             numExpenseTotal = parseFloat(totalExpense.innerHTML) + parseFloat(amount.value);
             numIncomeTotal = parseFloat(totalIncome.innerHTML)
@@ -235,7 +271,7 @@ addExpenseForm.addEventListener('submit', (event) => {
             balance.innerHTML = numBalance.toString();
 
             // Reset the form
-            //addExpenseForm.reset();
+            addExpenseForm.reset();
         })
         .catch((err) => {
             console.log(err);
@@ -278,39 +314,48 @@ addIncomeForm.addEventListener('submit', (event) => {
     axios.post("http://localhost:3000/income/addincome", expObj, { headers: { "Authorization": token } })
         .then((res) => {
             console.log(res.data.data.id);
-            // Create new table row
-            const newRow1 = document.createElement('tr');
-            // Create table data cells
-            const date = (new Date()).toLocaleDateString();
-            const incomeDetail = [date, amount1.value, desc1.value, cat1.value];
-            incomeDetail.forEach(function (value) {
-                const newCell1 = document.createElement('td');
-                newCell1.textContent = value;
-                newRow1.appendChild(newCell1);
-            });
+            if (localStorage.getItem('incomepage1ornot') === 'true') { // I am not adding expeses for pages other than first page  in the UI
+                // Create new table row
+                const newRow1 = document.createElement('tr');
+                // Create table data cells
+                const date = (new Date()).toLocaleDateString();
+                const incomeDetail = [date, amount1.value, desc1.value, cat1.value];
+                incomeDetail.forEach(function (value) {
+                    const newCell1 = document.createElement('td');
+                    newCell1.textContent = value;
+                    newRow1.appendChild(newCell1);
+                });
 
-            // Create delete button cell
-            const deleteCell1 = document.createElement('td');
-            const deleteButton1 = document.createElement('button');
-            deleteButton1.textContent = 'Delete';
-            deleteButton1.classList.add('delete-button1');
+                // Create delete button cell
+                const deleteCell1 = document.createElement('td');
+                const deleteButton1 = document.createElement('button');
+                deleteButton1.textContent = 'Delete';
+                deleteButton1.classList.add('delete-button1');
 
-            newRow1.id = res.data.data.id;
+                newRow1.id = res.data.data.id;
 
-            deleteButton1.addEventListener('click', function () {
-                // Remove the row from the table when delete button is clicked
-                deleteFn1(newRow1);
-                newRow1.remove();
-            });
-            deleteCell1.appendChild(deleteButton1);
-            newRow1.appendChild(deleteCell1);
+                deleteButton1.addEventListener('click', function () {
+                    // Remove the row from the table when delete button is clicked
+                    deleteFn1(newRow1);
+                    newRow1.remove();
+                });
+                deleteCell1.appendChild(deleteButton1);
+                newRow1.appendChild(deleteCell1);
 
-
-
-            // Append the new row to the table body
-            tbody1.appendChild(newRow1);
-
-
+                // Append the new row to the table body. But on top of the existing list
+                tbody1.insertBefore(newRow1, tbody1.firstChild);
+                //Deleteing that last elemnt of the list of tbody so tha number of rows remian same. 
+                const lastRow = tbody1.lastElementChild;
+                if (lastRow) {
+                    tbody1.removeChild(lastRow);
+                }
+            }
+            else{
+                // not addin the expense but just redicreting to page 1 
+                const rows = localStorage.getItem('rows');
+                tbody1.innerHTML = '';
+                getIncomes(1, rows);
+            }
             //changing the total income and balance total value in UI
             numExpenseTotal = parseFloat(totalExpense.innerHTML);
             numIncomeTotal = parseFloat(totalIncome.innerHTML) + parseFloat(amount1.value)
@@ -536,13 +581,14 @@ downloadButton.addEventListener('click', (e) => {
 //          //        //     //        PAGINATION FN            //      //      //               //
 function showExpensePagination({ currentPage, hasNextPage, nextPage, hasPreviousPage, previousPage, lastPage }) {
     paginationExpensesContainer.innerHTML = '';
+    const rows = localStorage.getItem('rows');
     // coee for first page : 
     if (previousPage > 1) {
         const btn0 = document.createElement('button');
         btn0.innerHTML = 1
         btn0.addEventListener('click', () => {
             tbody.innerHTML = '';
-            getExpenses(1);
+            getExpenses(1, rows);
             premiumRemoveForPagination();
         });
         paginationExpensesContainer.appendChild(btn0);
@@ -552,7 +598,7 @@ function showExpensePagination({ currentPage, hasNextPage, nextPage, hasPrevious
         btn2.innerHTML = previousPage
         btn2.addEventListener('click', () => {
             tbody.innerHTML = '';
-            getExpenses(previousPage);
+            getExpenses(previousPage, rows);
             premiumRemoveForPagination();
         });
         paginationExpensesContainer.appendChild(btn2);
@@ -561,7 +607,7 @@ function showExpensePagination({ currentPage, hasNextPage, nextPage, hasPrevious
     btn1.innerHTML = `<h3>${currentPage}</h3>`
     btn1.addEventListener('click', () => {
         tbody.innerHTML = '';
-        getExpenses(currentPage);
+        getExpenses(currentPage, rows);
         premiumRemoveForPagination();
     });
     paginationExpensesContainer.appendChild(btn1);
@@ -570,7 +616,7 @@ function showExpensePagination({ currentPage, hasNextPage, nextPage, hasPrevious
         btn3.innerHTML = nextPage;
         btn3.addEventListener('click', () => {
             tbody.innerHTML = '';
-            getExpenses(nextPage);
+            getExpenses(nextPage, rows);
             premiumRemoveForPagination();
         });
         paginationExpensesContainer.appendChild(btn3);
@@ -580,7 +626,7 @@ function showExpensePagination({ currentPage, hasNextPage, nextPage, hasPrevious
         btn4.innerHTML = lastPage;
         btn4.addEventListener('click', () => {
             tbody.innerHTML = '';
-            getExpenses(lastPage);
+            getExpenses(lastPage, rows);
             premiumRemoveForPagination();
         });
         paginationExpensesContainer.appendChild(btn4);
@@ -589,14 +635,14 @@ function showExpensePagination({ currentPage, hasNextPage, nextPage, hasPrevious
 
 function showIncomePagination({ currentPage, hasNextPage, nextPage, hasPreviousPage, previousPage, lastPage }) {
     paginationIncomesContainer.innerHTML = '';
-    // coee for first page : 
+    const rows = localStorage.getItem('rows');
+    // code for first page : 
     if (previousPage > 1) {
         const btn0 = document.createElement('button');
         btn0.innerHTML = 1
         btn0.addEventListener('click', () => {
             tbody1.innerHTML = '';
-            getIncomes(1);
-            premiumRemoveForPagination();
+            getIncomes(1, rows);
         });
         paginationIncomesContainer.appendChild(btn0);
     }
@@ -605,8 +651,7 @@ function showIncomePagination({ currentPage, hasNextPage, nextPage, hasPreviousP
         btn2.innerHTML = previousPage
         btn2.addEventListener('click', () => {
             tbody1.innerHTML = '';
-            getIncomes(previousPage);
-            premiumRemoveForPagination();
+            getIncomes(previousPage, rows);
         });
         paginationIncomesContainer.appendChild(btn2);
     }
@@ -614,8 +659,7 @@ function showIncomePagination({ currentPage, hasNextPage, nextPage, hasPreviousP
     btn1.innerHTML = `<h3>${currentPage}</h3>`
     btn1.addEventListener('click', () => {
         tbody1.innerHTML = '';
-        getIncomes(currentPage);
-        premiumRemoveForPagination();
+        getIncomes(currentPage, rows);
     });
     paginationIncomesContainer.appendChild(btn1);
     if (hasNextPage) {
@@ -623,8 +667,7 @@ function showIncomePagination({ currentPage, hasNextPage, nextPage, hasPreviousP
         btn3.innerHTML = nextPage;
         btn3.addEventListener('click', () => {
             tbody1.innerHTML = '';
-            getIncomes(nextPage);
-            premiumRemoveForPagination();
+            getIncomes(nextPage, rows);
         });
         paginationIncomesContainer.appendChild(btn3);
     }
@@ -633,8 +676,7 @@ function showIncomePagination({ currentPage, hasNextPage, nextPage, hasPreviousP
         btn4.innerHTML = lastPage;
         btn4.addEventListener('click', () => {
             tbody1.innerHTML = '';
-            getIncomes(lastPage);
-            premiumRemoveForPagination();
+            getIncomes(lastPage, rows);
         });
         paginationIncomesContainer.appendChild(btn4);
     }
@@ -645,6 +687,20 @@ function premiumRemoveForPagination() {
     const premiumUserTag = document.getElementById('premium-user');
     const leaderboardButton = document.getElementById('leaderboardbutton');
 
-    premiumUserTag.remove();
-    leaderboardButton.remove();
+    if (premiumUserTag && leaderboardButton) {
+        premiumUserTag.remove();
+        leaderboardButton.remove();
+    }
 }
+
+//                          //                   No. of rows per page          //                                 //
+
+pageRefreshButton.addEventListener('click', () => {
+    const rows = rowsPerPage.value;
+    localStorage.setItem('rows', rows);
+    getExpenses(1, rows);
+    tbody.innerHTML = '';
+    getIncomes(1, rows);
+    tbody1.innerHTML = '';
+    premiumRemoveForPagination();
+})

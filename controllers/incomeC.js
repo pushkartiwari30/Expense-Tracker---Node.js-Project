@@ -70,7 +70,8 @@ exports.getIncomes = async (req, res) => {
         let totalEntries;
         console.log(req.body);
         const page = parseInt(req.query.page);
-        const offset = (page - 1) * 10; // the offset based on the page number and number of incomes per page (10)
+        const rows = parseInt(req.query.rows);
+        const offset = (page - 1) * rows; // the offset based on the page number and number of incomes per page
 
         await Income.count({where: {userId: req.user.id}})
             .then(async (total) => {
@@ -80,7 +81,7 @@ exports.getIncomes = async (req, res) => {
                 allIncome = await Income.findAll({
                     where: { userId: req.user.id },
                     order: [['id', 'DESC']],
-                    limit: 10,
+                    limit: rows,
                     offset: offset,
                 })
             });
@@ -99,11 +100,11 @@ exports.getIncomes = async (req, res) => {
                         isPremiumUser: user.ispremiumuser,
                         totalIncome: user.totalIncome,
                         currentPage: page,
-                        hasNextPage: 10 * page < totalEntries,
+                        hasNextPage: rows * page < totalEntries,
                         nextPage: page + 1,
                         hasPreviousPage: page > 1,
                         previousPage: page - 1,
-                        lastPage: Math.ceil(totalEntries / 10)
+                        lastPage: Math.ceil(totalEntries / rows)
 
                     });
                 } else {
