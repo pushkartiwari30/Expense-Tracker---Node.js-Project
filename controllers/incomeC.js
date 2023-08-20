@@ -7,8 +7,6 @@ exports.addIncome = async (req, res) => {
     const t = await sequelize.transaction(); // Creating transaction object
     try {
         const amount = req.body.amount;
-        console.log("Amount =")
-        console.log(amount);
         const desc = req.body.desc;
         const cat = req.body.cat;
         console.log(req.user.id);
@@ -29,8 +27,6 @@ exports.addIncome = async (req, res) => {
 
         await user.update({ totalIncome: newTotalIncome }, { transaction: t });
         await t.commit(); // Commit the transaction
-        console.log(newTotalIncome);
-        console.log("updated")
         res.status(201).json({ data: income });
     } catch (err) {
         //await t.rollback();
@@ -68,29 +64,57 @@ exports.deleteIncome = async (req, res) => {
     }
 }
 
-exports.getIncomes = async(req, res) => {
+exports.getIncomes = async (req, res) => {
     try {
+        let allIncome;
+        let totalEntries;
         console.log(req.body);
-        // we will find all the the incomes having a particular user id. 
-        const allIncome = await Income.findAll({where :{userId: req.user.id}})
+        const page = parseInt(req.query.page);
+        const offset = (page - 1) * 10; // the offset based on the page number and number of incomes per page (10)
+
+        await Income.count({where: {userId: req.user.id}})
+            .then(async (total) => {
+                console.log("Total Income ==>", total);
+                totalEntries = total;
+                // we will find all the the incomes having a particular user id. 
+                allIncome = await Income.findAll({
+                    where: { userId: req.user.id },
+                    order: [['id', 'DESC']],
+                    limit: 10,
+                    offset: offset,
+                })
+            });
+
+
         // checking if loggedin user is a premium user or not 
         User.findOne({
             where: { id: req.user.id },
-            attributes: ['ispremiumuser'] // specify the column I want to retrieve
-          })
-          .then(user => {
-            if (user) {
-              console.log(user.ispremiumuser); // value of the 'ispremiumuser' column for the user with mentioned id of the user
-              res.status(200).json({allIncome : allIncome, isPremiumUser: user.ispremiumuser});
-            } else {
-              console.log("User not found.");
-            }
-          })
-          .catch(err => {
-            console.error('Error:', err);
-          });
-        
-        
+            attributes: ['ispremiumuser', 'totalIncome'] // specify the column I want to retrieve
+        })
+            .then(user => {
+                if (user) {
+                    console.log(user.ispremiumuser); // value of the 'ispremiumuser' column for the user with mentioned id of the user
+                    res.status(200).json({
+                        allIncome: allIncome,
+                        isPremiumUser: user.ispremiumuser,
+                        totalIncome: user.totalIncome,
+                        currentPage: page,
+                        hasNextPage: 10 * page < totalEntries,
+                        nextPage: page + 1,
+                        hasPreviousPage: page > 1,
+                        previousPage: page - 1,
+                        lastPage: Math.ceil(totalEntries / 10)
+
+                    });
+                } else {
+                    console.log("User not found.");
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+            });
+
+
     }
     catch (err) {
         console.error(err);

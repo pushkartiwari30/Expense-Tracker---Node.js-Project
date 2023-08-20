@@ -28,6 +28,9 @@ const closeButton = document.getElementById("closeButton");
 const overlay = document.getElementById("overlay");
 const popup = document.querySelector(".popup");
 
+const paginationExpensesContainer = document.getElementById('paginationExpenses');
+const paginationIncomesContainer = document.getElementById('paginationIncomes');
+
 // const signupButton = document.querySelector('.signup-button');
 // const logoutButton = document.querySelector('.logout-button');
 
@@ -36,8 +39,8 @@ const token = localStorage.getItem('token');
 let incomeSumTotal = 0;
 let expenseSumtotal = 0;
 
-document.addEventListener('DOMContentLoaded', () => {
-    axios.get("http://localhost:3000/expense/getexpenses", { headers: { "Authorization": token } })
+function getExpenses(page) {
+    axios.get(`http://localhost:3000/expense/getexpenses?page=${page}`, { headers: { "Authorization": token } })
         .then((res) => {
             // chekcing if the loggedin user is a premiusm user or not. if he is then : 
             // remove the premium button. 
@@ -71,6 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             }
 
+            // Pagination Code
+            console.log("RES DATA ==> ", res.data)
+            showExpensePagination(res.data);
+            // Code fo adding expense to the UI
             console.log(res.data.allExpense);
             const expense = res.data.allExpense;
             expense.forEach(obj => {
@@ -78,12 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create new table row
                 const newRow = document.createElement('tr');
 
-                expenseSumtotal = expenseSumtotal + obj.amountExp;
                 // // Convert ISO timestamp to JavaScript Date object
                 const dateObject = new Date(obj.createdAt);
                 // Format the date and time in a more readable format
                 const date = dateObject.toLocaleDateString(); // Example: '8/18/2023'
-                const expenseDetail = [date ,obj.amountExp, obj.description, obj.category];
+                const expenseDetail = [date, obj.amountExp, obj.description, obj.category];
                 expenseDetail.forEach(function (value) {
                     const newCell = document.createElement('td');
                     newCell.textContent = value;
@@ -109,23 +115,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Append the new row to the table body
                 tbody.appendChild(newRow);
             });
-            //console.log(expenseSumtotal);
+            expenseSumtotal = res.data.totalExpense
             totalExpense.innerHTML = expenseSumtotal;
 
         })
         .catch((err) => {
             console.log(err);
         })
-    hideLeaderboard()// hidning the leader booard after refresh
-    //   <---------------------------------Get Req for Incomes ---------------------------------> 
-    axios.get("http://localhost:3000/income/getincomes", { headers: { "Authorization": token } })
+}
+function getIncomes(page) {
+    axios.get(`http://localhost:3000/income/getincomes?page=${page}`, { headers: { "Authorization": token } })
         .then((res) => {
+            // Pagination Code
+            console.log("RES INCOME DATA ==> ", res.data)
+            showIncomePagination(res.data);
             //console.log(res.data.allIncome);
             const income = res.data.allIncome;
             income.forEach(obj => {
                 // Create new table row
                 const newRow1 = document.createElement('tr');
-                incomeSumTotal = incomeSumTotal + obj.amountInc; // to dsply the sum of income on UI
                 // // Convert ISO timestamp to JavaScript Date object
                 const dateObject = new Date(obj.createdAt);
                 // Format the date and time in a more readable format
@@ -156,7 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Append the new row to the table body
                 tbody1.appendChild(newRow1);
             });
-            console.log(incomeSumTotal);
+
+            incomeSumTotal = res.data.totalIncome
             totalIncome.innerHTML = incomeSumTotal;
             balance.innerHTML = incomeSumTotal - expenseSumtotal;
 
@@ -164,6 +173,14 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch((err) => {
             console.log(err);
         })
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    getExpenses(1);
+    hideLeaderboard()// hidning the leader booard after refresh
+    //   <---------------------------------Get Req for Incomes ---------------------------------> 
+    getIncomes(1);
 })
 
 addExpenseForm.addEventListener('submit', (event) => {
@@ -218,7 +235,7 @@ addExpenseForm.addEventListener('submit', (event) => {
             balance.innerHTML = numBalance.toString();
 
             // Reset the form
-            addExpenseForm.reset();
+            //addExpenseForm.reset();
         })
         .catch((err) => {
             console.log(err);
@@ -230,12 +247,12 @@ const deleteFn = function (newRow) {
     hideLeaderboard(); //closing leaderboard
     obj = {
         id: newRow.id,
-        amount: newRow.firstChild.textContent
+        amount: newRow.childNodes[1].textContent
     }
     axios.post("http://localhost:3000/expense/deleteexpense", obj, { headers: { "Authorization": token } })
         .then(() => {
             console.log("deleted");
-            numExpenseTotal = parseFloat(totalExpense.innerHTML) - parseFloat(newRow.firstChild.textContent);
+            numExpenseTotal = parseFloat(totalExpense.innerHTML) - parseFloat(newRow.childNodes[1].textContent);
             numIncomeTotal = parseFloat(totalIncome.innerHTML)
             numBalance = numIncomeTotal - numExpenseTotal;
 
@@ -248,6 +265,7 @@ const deleteFn = function (newRow) {
 }
 
 
+// ------------------------------------------INCOME ----------------------------------------------------
 addIncomeForm.addEventListener('submit', (event) => {
     event.preventDefault();
     hideLeaderboard(); //closing leaderboard
@@ -314,14 +332,14 @@ const deleteFn1 = function (newRow1) {
     hideLeaderboard(); //closing leaderboard
     obj = {
         id: newRow1.id,
-        amount: newRow1.firstChild.textContent
+        amount: newRow1.childNodes[1].textContent
     }
     axios.post("http://localhost:3000/income/deleteincome", obj, { headers: { "Authorization": token } })
         .then(() => {
             console.log("deleted");
             //changing the total income and balance total value in UI
             numExpenseTotal = parseFloat(totalExpense.innerHTML);
-            numIncomeTotal = parseFloat(totalIncome.innerHTML) - parseFloat(newRow1.firstChild.textContent)
+            numIncomeTotal = parseFloat(totalIncome.innerHTML) - parseFloat(newRow1.childNodes[1].textContent)
             numBalance = numIncomeTotal - numExpenseTotal;
 
             totalIncome.innerHTML = numIncomeTotal.toString()
@@ -460,18 +478,18 @@ const hideLeaderboard = () => {
 
 
 
-//                     //            //     //        DOWNLOAD EXPENSE+INCOME FILE            //                   //      //               //
+//          //        //     //        DOWNLOAD EXPENSE+INCOME FILE            //      //      //               //
 downloadButton.addEventListener('click', (e) => {
     console.log("download button clicked");
     axios.get("http://localhost:3000/user/download", { headers: { "Authorization": token } })
         .then((res) => {
             if (res.data.success) {
                 overlay.style.display = "flex"; // or "block"
-                    popup.style.display = "block";
-                    closeButton.addEventListener("click", () => {
-                        overlay.style.display = "none";
-                        popup.style.display = "none";
-                    });
+                popup.style.display = "block";
+                closeButton.addEventListener("click", () => {
+                    overlay.style.display = "none";
+                    popup.style.display = "none";
+                });
                 const allDataOfURLTable = res.data.allDataOfURLTable;
                 allDataOfURLTable.forEach(file => {
                     const URL = file.fileUrl;
@@ -480,7 +498,7 @@ downloadButton.addEventListener('click', (e) => {
                     // Format the date and time in a more readable format
                     const date = dateObject.toLocaleDateString(); // Example: '8/18/2023'
                     const time = dateObject.toLocaleTimeString(); // Example: '3:31:04 PM'
-                    
+
                     const data = { date, time, URL };
                     const tableBody = document.getElementById('tableBody');
                     const row = document.createElement('tr');
@@ -514,3 +532,119 @@ downloadButton.addEventListener('click', (e) => {
             console.log(err);
         });
 })
+
+//          //        //     //        PAGINATION FN            //      //      //               //
+function showExpensePagination({ currentPage, hasNextPage, nextPage, hasPreviousPage, previousPage, lastPage }) {
+    paginationExpensesContainer.innerHTML = '';
+    // coee for first page : 
+    if (previousPage > 1) {
+        const btn0 = document.createElement('button');
+        btn0.innerHTML = 1
+        btn0.addEventListener('click', () => {
+            tbody.innerHTML = '';
+            getExpenses(1);
+            premiumRemoveForPagination();
+        });
+        paginationExpensesContainer.appendChild(btn0);
+    }
+    if (hasPreviousPage) {
+        const btn2 = document.createElement('button');
+        btn2.innerHTML = previousPage
+        btn2.addEventListener('click', () => {
+            tbody.innerHTML = '';
+            getExpenses(previousPage);
+            premiumRemoveForPagination();
+        });
+        paginationExpensesContainer.appendChild(btn2);
+    }
+    const btn1 = document.createElement('button');
+    btn1.innerHTML = `<h3>${currentPage}</h3>`
+    btn1.addEventListener('click', () => {
+        tbody.innerHTML = '';
+        getExpenses(currentPage);
+        premiumRemoveForPagination();
+    });
+    paginationExpensesContainer.appendChild(btn1);
+    if (hasNextPage) {
+        const btn3 = document.createElement('button');
+        btn3.innerHTML = nextPage;
+        btn3.addEventListener('click', () => {
+            tbody.innerHTML = '';
+            getExpenses(nextPage);
+            premiumRemoveForPagination();
+        });
+        paginationExpensesContainer.appendChild(btn3);
+    }
+    if (lastPage > nextPage) {
+        const btn4 = document.createElement('button');
+        btn4.innerHTML = lastPage;
+        btn4.addEventListener('click', () => {
+            tbody.innerHTML = '';
+            getExpenses(lastPage);
+            premiumRemoveForPagination();
+        });
+        paginationExpensesContainer.appendChild(btn4);
+    }
+}
+
+function showIncomePagination({ currentPage, hasNextPage, nextPage, hasPreviousPage, previousPage, lastPage }) {
+    paginationIncomesContainer.innerHTML = '';
+    // coee for first page : 
+    if (previousPage > 1) {
+        const btn0 = document.createElement('button');
+        btn0.innerHTML = 1
+        btn0.addEventListener('click', () => {
+            tbody1.innerHTML = '';
+            getIncomes(1);
+            premiumRemoveForPagination();
+        });
+        paginationIncomesContainer.appendChild(btn0);
+    }
+    if (hasPreviousPage) {
+        const btn2 = document.createElement('button');
+        btn2.innerHTML = previousPage
+        btn2.addEventListener('click', () => {
+            tbody1.innerHTML = '';
+            getIncomes(previousPage);
+            premiumRemoveForPagination();
+        });
+        paginationIncomesContainer.appendChild(btn2);
+    }
+    const btn1 = document.createElement('button');
+    btn1.innerHTML = `<h3>${currentPage}</h3>`
+    btn1.addEventListener('click', () => {
+        tbody1.innerHTML = '';
+        getIncomes(currentPage);
+        premiumRemoveForPagination();
+    });
+    paginationIncomesContainer.appendChild(btn1);
+    if (hasNextPage) {
+        const btn3 = document.createElement('button');
+        btn3.innerHTML = nextPage;
+        btn3.addEventListener('click', () => {
+            tbody1.innerHTML = '';
+            getIncomes(nextPage);
+            premiumRemoveForPagination();
+        });
+        paginationIncomesContainer.appendChild(btn3);
+    }
+    if (lastPage > nextPage) {
+        const btn4 = document.createElement('button');
+        btn4.innerHTML = lastPage;
+        btn4.addEventListener('click', () => {
+            tbody1.innerHTML = '';
+            getIncomes(lastPage);
+            premiumRemoveForPagination();
+        });
+        paginationIncomesContainer.appendChild(btn4);
+    }
+}
+
+//This fn is for removing the extra prmium tag and showleaderboard button that comes up when pagination button sare clicked. 
+function premiumRemoveForPagination() {
+    const premiumUserTag = document.getElementById('premium-user');
+    const leaderboardButton = document.getElementById('leaderboardbutton');
+
+    premiumUserTag.remove();
+    leaderboardButton.remove();
+}

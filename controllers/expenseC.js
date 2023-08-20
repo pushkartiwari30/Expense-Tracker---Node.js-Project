@@ -17,7 +17,6 @@ exports.addExpense = async (req, res) => {
         const user = await User.findByPk(req.user.id, { transaction: t });
 
         let newTotalExpense = 0;
-        console.log(typeof newTotalExpense);
         if (user.totalExpense === null) {
             newTotalExpense = amount;
         }
@@ -25,11 +24,11 @@ exports.addExpense = async (req, res) => {
             newTotalExpense = user.totalExpense + parseFloat(amount);
         }
 
-        await user.update({ totalExpense: newTotalExpense }, { transaction: t });  
+        await user.update({ totalExpense: newTotalExpense }, { transaction: t });
         await t.commit(); // Commit the transaction
         console.log(newTotalExpense);
         res.status(201).json({ data: expense });
-        
+
     } catch (err) {
         await t.rollback();
         console.error(err);
@@ -65,18 +64,44 @@ exports.deleteExpense = async (req, res) => {
 
 exports.getExpenses = async (req, res) => {
     try {
+        let allExpense;
+        let totalEntries;
         console.log(req.body);
-        // we will find all the the expenses having a particular user id. 
-        const allExpense = await Expense.findAll({ where: { userId: req.user.id } })
+        const page = parseInt(req.query.page);
+        console.log("PAGE ==> ", page);
+        const offset = (page - 1) * 10; // the offset based on the page number and number of expenses per page (10)
+
+        await Expense.count({where: {userId: req.user.id}})
+            .then(async (total) => {
+                console.log("Total ==>", total);
+                totalEntries = total;
+                // we will find all the the expenses having a particular user id. 
+                allExpense = await Expense.findAll({
+                    where: { userId: req.user.id },
+                    order: [['id', 'DESC']],
+                    limit: 10,
+                    offset: offset,
+                });
+            })
         // checking if loggedin user is a premium user or not 
         User.findOne({
             where: { id: req.user.id },
-            attributes: ['ispremiumuser'] // specify the column I want to retrieve
+            attributes: ['ispremiumuser', 'totalExpense'], // specify the column I want to retrieve
         })
             .then(user => {
                 if (user) {
                     console.log(user.ispremiumuser); // value of the 'ispremiumuser' column for the user with mentioned id of the user
-                    res.status(200).json({ allExpense: allExpense, isPremiumUser: user.ispremiumuser });
+                    res.status(200).json({
+                        allExpense: allExpense,
+                        isPremiumUser: user.ispremiumuser,
+                        totalExpense: user.totalExpense,
+                        currentPage: page,
+                        hasNextPage: 10 * page < totalEntries,
+                        nextPage: page + 1,
+                        hasPreviousPage: page > 1,
+                        previousPage: page - 1,
+                        lastPage: Math.ceil(totalEntries / 10)
+                    });
                 } else {
                     console.log("User not found.");
                 }
@@ -84,8 +109,6 @@ exports.getExpenses = async (req, res) => {
             .catch(err => {
                 console.error('Error:', err);
             });
-
-
     }
     catch (err) {
         console.error(err);
