@@ -273,7 +273,7 @@ h1 {
 
 
 /* Styling for Sign Up and Log In buttons */
-.signup-button,
+.homepage-button,
 .logout-button {
     background-color: #008CBA;
     color: white;

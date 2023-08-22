@@ -33,8 +33,9 @@ const paginationIncomesContainer = document.getElementById('paginationIncomes');
 
 const pageRefreshButton = document.getElementById('pageRefresh');
 const rowsPerPage = document.getElementById('rowsPerPage');
-// const signupButton = document.querySelector('.signup-button');
-// const logoutButton = document.querySelector('.logout-button');
+
+const homepageButton = document.querySelector('.homepage-button');
+const logoutButton = document.querySelector('.logout-button');
 
 // making a get request to the backend 
 const token = localStorage.getItem('token');
@@ -133,7 +134,12 @@ function getExpenses(page, rows) {
                 // Append the new row to the table body
                 tbody.appendChild(newRow);
             });
-            expenseSumtotal = res.data.totalExpense
+            if (res.data.totalExpense == null) {
+                expenseSumtotal = 0;
+            }
+            else {
+                expenseSumtotal = res.data.totalExpense;
+            }
             totalExpense.innerHTML = expenseSumtotal;
 
         })
@@ -187,8 +193,12 @@ function getIncomes(page, rows) {
                 // Append the new row to the table body
                 tbody1.appendChild(newRow1);
             });
-
-            incomeSumTotal = res.data.totalIncome
+            if (res.data.totalIncome == null) {
+                incomeSumTotal = 0;
+            }
+            else {
+                incomeSumTotal = res.data.totalIncome;
+            }
             totalIncome.innerHTML = incomeSumTotal;
             balance.innerHTML = incomeSumTotal - expenseSumtotal;
 
@@ -249,10 +259,14 @@ addExpenseForm.addEventListener('submit', (event) => {
 
                 // Append the new row to the table body. But on top of the existing list
                 tbody.insertBefore(newRow, tbody.firstChild);
-                //Deleteing that last elemnt of the list of tbody so tha number of rows remian same. 
-                const lastRow = tbody.lastElementChild;
-                if (lastRow) {
-                    tbody.removeChild(lastRow);
+                //counting th enumber of exiting rows in page 1
+                const rowCount = tbody.rows.length;
+                const rows = localStorage.getItem('rows');
+                if (rowCount > rows) { // deleting the last row only if 1st page has preexiting 5 rows.
+                    const lastRow = tbody.lastElementChild;
+                    if (lastRow) {
+                        tbody.removeChild(lastRow); //Deleteing that last elemnt of the list of tbody so tha number of rows remian same. 
+                    }
                 }
             }
             else {
@@ -344,13 +358,18 @@ addIncomeForm.addEventListener('submit', (event) => {
 
                 // Append the new row to the table body. But on top of the existing list
                 tbody1.insertBefore(newRow1, tbody1.firstChild);
+                //counting th enumber of exiting rows in page 1
+                const rowCount = tbody1.rows.length;
+                const rows = localStorage.getItem('rows');
                 //Deleteing that last elemnt of the list of tbody so tha number of rows remian same. 
-                const lastRow = tbody1.lastElementChild;
-                if (lastRow) {
-                    tbody1.removeChild(lastRow);
+                if (rowCount > rows) { // deleting the last row only if 1st page has preexiting 5 rows.
+                    const lastRow = tbody1.lastElementChild;
+                    if (lastRow) {
+                        tbody1.removeChild(lastRow);
+                    }
                 }
             }
-            else{
+            else {
                 // not addin the expense but just redicreting to page 1 
                 const rows = localStorage.getItem('rows');
                 tbody1.innerHTML = '';
@@ -366,7 +385,6 @@ addIncomeForm.addEventListener('submit', (event) => {
 
             // Reset the form
             addIncomeForm.reset();
-
         })
         .catch((err) => {
             console.log(err);
@@ -400,7 +418,7 @@ const deleteFn1 = function (newRow1) {
 
 
 
-//                     //            //     //        PREMIUM            //                   //      //               //  
+//                     //            //     //       PREMIUM            //             //      //               //  
 
 premiumButton.addEventListener('click', async function (e) {
     const token = localStorage.getItem('token');
@@ -703,4 +721,15 @@ pageRefreshButton.addEventListener('click', () => {
     getIncomes(1, rows);
     tbody1.innerHTML = '';
     premiumRemoveForPagination();
+})
+
+// --------------------------------------------------Home Page Redirecting ---------------------------------//
+homepageButton.addEventListener('click', () => {
+    window.location.href = 'home.html';
+    localStorage.removeItem('token'); //logging out
+})
+// --------------------------------------------------Log Out  ---------------------------------------------//
+logoutButton.addEventListener('click', () => {
+    window.location.href = 'home.html';
+    localStorage.removeItem('token'); //logging out
 })

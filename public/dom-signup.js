@@ -18,14 +18,21 @@ signupForm.addEventListener('submit', (event) => {
             console.log(res);
             // Redircting to Login Page
             signupForm.reset();
+            errorElement.textContent ='';
+            alert("Welcome to KUBER - The Expense Tracker App");
             window.location.href = 'login.html';
 
         })
         .catch((error) => {
             //console.log(error);
             //addinf this error to front end 
-            const errorMessage = error.message;
-            console.log(errorMessage);
-            errorElement.textContent = errorMessage;
+            if (error.response.status == 409) {
+                errorElement.textContent = "User Already Exists"
+            }
+            else {
+                const errorMessage = error;
+                console.log(errorMessage);
+                errorElement.textContent = errorMessage;
+            }
         })
 })
