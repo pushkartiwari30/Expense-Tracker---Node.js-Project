@@ -4,7 +4,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 const path = require('path');
-
+const helmet = require('helmet');
+const fs = require('fs');
+const morgan = require('morgan');
 
 const sequelize = require('./util/database');
 const User = require('./models/user');
@@ -26,6 +28,19 @@ const downloadRoutes = require('./routes/downloadR');
 
 
 app.use(cors());
+
+const errorLogStream = fs.createWriteStream(
+    path.join(__dirname, 'error.log'),
+    { flags: 'a' }
+); // flag: Append mode
+
+app.use(morgan('combined', {
+    stream: errorLogStream,
+    skip: (req, res) => res.statusCode < 400 // Only log errors (status code 4xx and 5xx)
+  })
+);
+
+app.use(helmet());
 app.use(bodyParser.json({ extended: false }));
 
 // Set up static files serving for the "public" directory
@@ -59,7 +74,7 @@ FilesDownloaded.belongsTo(User);
 //When force: true is set, it will drop the existing tables from the database and recreate them, effectively resetting the database schema.
 sequelize.sync()
     .then(result => {
-        app.listen(3000);
+        app.listen(process.env.PORT || 3000);
     })
     .catch(err => {
         console.log(err);
