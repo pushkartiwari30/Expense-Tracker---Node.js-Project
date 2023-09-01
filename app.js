@@ -32,8 +32,7 @@ app.use(cors());
 const errorLogStream = fs.createWriteStream(
     path.join(__dirname, 'error.log'),
     { flags: 'a' }
-); // flag: Append mode
-
+); // flag:  Append mode
 app.use(morgan('combined', {
     stream: errorLogStream,
     skip: (req, res) => res.statusCode < 400 // Only log errors (status code 4xx and 5xx)
