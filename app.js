@@ -39,7 +39,15 @@ app.use(morgan('combined', {
   })
 );
 
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://checkout.razorpay.com'],
+          // Add other directives as needed
+        }
+      }
+  }));
 app.use(bodyParser.json({ extended: false }));
 
 // Set up static files serving for the "public" directory
@@ -53,6 +61,27 @@ app.use('/purchase', purchaseRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/password', passwordRoutes);
 app.use('/user', downloadRoutes);
+
+// Serve HTML/CSS/JS files 
+app.use((req, res, next) => {
+    const url = req.url;
+    console.log(url);
+    if (url.endsWith('.html')) {
+        res.sendFile(path.join(__dirname, 'views', url));
+    }
+    else if (url.endsWith('.css')) {
+        res.sendFile(path.join(__dirname, url));
+    }
+    else if (url.endsWith('.js')) {
+        res.sendFile(path.join(__dirname, url));
+    }
+    else if (url.endsWith('.jpg')) {
+        res.sendFile(path.join(__dirname, url));
+    }
+    else {
+        next();
+    }
+});
 
 //tables relationship
 User.hasMany(Expense);  // one to many
